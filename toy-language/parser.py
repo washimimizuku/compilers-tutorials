@@ -1,25 +1,22 @@
 from rply import ParserGenerator
-from ast import Number, Sum, Sub, Print, Mul, Div
+from ast import Number, Sum, Sub, Mul, Div, Print
 
 
 class Parser():
-    def __init__(self):
+    def __init__(self, module, builder, printf):
         self.pg = ParserGenerator(
             # A list of all token names accepted by the parser.
             ['NUMBER', 'PRINT', 'OPEN_PAREN', 'CLOSE_PAREN',
-             'SEMI_COLON', 'SUM', 'SUB', 'MUL', 'DIV'],
-            # A list of precedence rules with ascending precedence, to
-            # disambiguate ambiguous production rules.
-            precedence=[
-                ('left', ['SUM', 'SUB']),
-                ('left', ['MUL', 'DIV'])
-            ]
+             'SEMI_COLON', 'SUM', 'SUB', 'MUL', 'DIV']
         )
+        self.module = module
+        self.builder = builder
+        self.printf = printf
 
     def parse(self):
         @self.pg.production('program : PRINT OPEN_PAREN expression CLOSE_PAREN SEMI_COLON')
         def program(p):
-            return Print(p[2])
+            return Print(self.builder, self.module, self.printf, p[2])
 
         @self.pg.production('expression : expression SUM expression')
         @self.pg.production('expression : expression SUB expression')
@@ -30,17 +27,17 @@ class Parser():
             right = p[2]
             operator = p[1]
             if operator.gettokentype() == 'SUM':
-                return Sum(left, right)
+                return Sum(self.builder, self.module, left, right)
             elif operator.gettokentype() == 'SUB':
-                return Sub(left, right)
+                return Sub(self.builder, self.module, left, right)
             elif operator.gettokentype() == 'MUL':
-                return Mul(left, right)
+                return Mul(self.builder, self.module, left, right)
             elif operator.gettokentype() == 'DIV':
-                return Div(left, right)
+                return Div(self.builder, self.module, left, right)
 
         @self.pg.production('expression : NUMBER')
         def number(p):
-            return Number(p[0].value)
+            return Number(self.builder, self.module, p[0].value)
 
         @self.pg.error
         def error_handle(token):
