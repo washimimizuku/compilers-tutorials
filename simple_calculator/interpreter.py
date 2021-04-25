@@ -32,13 +32,13 @@ class BasicInterpreter:
             return node[1]
         
         if node[0] == 'add':
-            return self.walk_tree(node[1]) + self.walkTree(node[2])
+            return self.walk_tree(node[1]) + self.walk_tree(node[2])
         elif node[0] == 'sub':
-            return self.walk_tree(node[1]) - self.walkTree(node[2])
+            return self.walk_tree(node[1]) - self.walk_tree(node[2])
         elif node[0] == 'mul':
-            return self.walk_tree(node[1]) * self.walkTree(node[2])
+            return self.walk_tree(node[1]) * self.walk_tree(node[2])
         elif node[0] == 'div':
-            return self.walk_tree(node[1]) / self.walkTree(node[2])
+            return self.walk_tree(node[1]) / self.walk_tree(node[2])
 
         if node[0] == 'var_assign':
             self.env[node[1]] = self.walk_tree(node[2])
@@ -46,7 +46,7 @@ class BasicInterpreter:
         
         if node[0] == 'var':
             try:
-                return self.walk_tree(node[1])
+                return self.env[node[1]]
             except LookupError:
                 print("Undefined variable '"+node[1]+"' found!")
                 return 0

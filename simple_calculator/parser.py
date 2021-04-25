@@ -1,4 +1,6 @@
 from sly import Parser
+from lexer import BasicLexer
+
 
 class BasicParser(Parser):
     # Tokens are passed from lexer to parser
