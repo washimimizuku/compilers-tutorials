@@ -17,5 +17,6 @@ if __name__ == "__main__":
             break
 
         if text:
-            tree = parser.parse(lexer.tokenize(text))
+            tokens = lexer.tokenize(text)
+            tree = parser.parse(tokens)
             BasicInterpreter(tree, env)

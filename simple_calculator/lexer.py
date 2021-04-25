@@ -6,7 +6,7 @@ class BasicLexer(Lexer):
         NUMBER,
         STRING
     }
-    ignore = '\t'
+    ignore = '\t '
     literals = {'=', '+', '-', '/',
                 '*', '(', ')', ',', ';'}
 
