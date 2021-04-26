@@ -1,7 +1,8 @@
 from llvmlite import ir
+from rply.token import BaseBox
 
 
-class Number():
+class Number(BaseBox):
     def __init__(self, builder, module, value):
         self.builder = builder
         self.module = module
@@ -12,7 +13,7 @@ class Number():
         return i
 
 
-class BinaryOp():
+class BinaryOp(BaseBox):
     def __init__(self, builder, module, left, right):
         self.builder = builder
         self.module = module
@@ -44,7 +45,7 @@ class Div(BinaryOp):
         return i
 
 
-class Print():
+class Print(BaseBox):
     def __init__(self, builder, module, printf, value):
         self.builder = builder
         self.module = module
