@@ -29,6 +29,6 @@ class TokenType(enum.Enum):
 class Token:
     """Represents a token."""
 
-    def __init__(self, tp: TokenType, literal: str) -> None:
-        self.tp = tp
+    def __init__(self, token_type: TokenType, literal: str) -> None:
+        self.token_type = token_type
         self.literal = literal

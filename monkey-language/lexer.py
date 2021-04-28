@@ -40,6 +40,8 @@ class Lexer():
             tok = Token(TokenType.RBRACE, self.ch)
         elif self.ch == "\0":
             tok = Token(TokenType.EOF, "")
+        else:
+            tok = Token(TokenType.ILLEGAL, "")
 
         self.read_char()
 
