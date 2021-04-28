@@ -40,6 +40,15 @@ class TokenType(enum.Enum):
     RETURN = "RETURN"
 
 class Token:
+    KEYWORDS = {
+        'fn': TokenType.FUNCTION,
+        'let': TokenType.LET,
+        'true': TokenType.TRUE,
+        'false': TokenType.FALSE,
+        'if': TokenType.IF,
+        'else': TokenType.ELSE,
+        'return': TokenType.RETURN,
+    }
 
     def __init__(self, token_type: TokenType, literal: str) -> None:
         self.token_type = token_type

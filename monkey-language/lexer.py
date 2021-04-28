@@ -1,16 +1,6 @@
 from token_ import Token, TokenType
 
 class Lexer():
-    KEYWORDS = {
-        'fn': TokenType.FUNCTION,
-        'let': TokenType.LET,
-        'true': TokenType.TRUE,
-        'false': TokenType.FALSE,
-        'if': TokenType.IF,
-        'else': TokenType.ELSE,
-        'return': TokenType.RETURN,
-    }
-
     def __init__(self, code: str) -> None:
         self.code = code
         self.position = 0 # Current position in input (points to current char)
@@ -119,8 +109,8 @@ class Lexer():
     
 
     def lookup_identifier(self, identifier: str) -> TokenType:
-        if identifier in self.KEYWORDS.keys():
-            return self.KEYWORDS[identifier]
+        if identifier in Token.KEYWORDS.keys():
+            return Token.KEYWORDS[identifier]
         else:
             return TokenType.IDENT
 
