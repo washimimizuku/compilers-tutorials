@@ -18,6 +18,8 @@ class TokenType(enum.Enum):
 
     LT = "<"
     GT = ">"
+    EQ = "=="
+    NOT_EQ = "!="
 
     # Delimeters
     COMMA = ","

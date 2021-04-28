@@ -34,13 +34,25 @@ class Lexer():
         self.skip_whitespace()
 
         if self.ch == '=':
-            tok = Token(TokenType.ASSIGN, self.ch)
+            if self.peek_char() == '=': 
+                ch = self.ch
+                self.read_char()
+                literal = ch + self.ch
+                tok = Token(TokenType.EQ, literal)
+            else:
+                tok = Token(TokenType.ASSIGN, self.ch)
         elif self.ch == '+':
             tok = Token(TokenType.PLUS, self.ch)
         elif self.ch == '-':
             tok = Token(TokenType.MINUS, self.ch)
         elif self.ch == '!':
-            tok = Token(TokenType.BANG, self.ch)
+            if self.peek_char() == '=': 
+                ch = self.ch
+                self.read_char()
+                literal = ch + self.ch
+                tok = Token(TokenType.NOT_EQ, literal)
+            else:
+                tok = Token(TokenType.BANG, self.ch)
         elif self.ch == '/':
             tok = Token(TokenType.SLASH, self.ch)
         elif self.ch == '*':
@@ -117,3 +129,8 @@ class Lexer():
         while self.ch in [' ', '\t', '\r', '\n']:
             self.read_char()
 
+    def peek_char(self):
+        if self.read_position >= len(self.code):
+            return 0
+        else:
+            return self.code[self.read_position]
