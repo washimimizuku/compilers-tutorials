@@ -1,5 +1,7 @@
 from lexer import Lexer
+from token_ import TokenType
 import unittest
+
 
 class TestLexer(unittest.TestCase):
 
@@ -8,21 +10,21 @@ class TestLexer(unittest.TestCase):
         lexer = Lexer(code)
 
         expected = [
-            ["TokenType.ASSIGN", "="],
-            ["TokenType.PLUS", "+"],
-            ["TokenType.LPAREN", "("],
-            ["TokenType.RPAREN", ")"],
-            ["TokenType.LBRACE", "{"],
-            ["TokenType.RBRACE", "}"],
-            ["TokenType.COMMA", ","],
-            ["TokenType.SEMICOLON", ";"],
-            ["TokenType.EOF", ""],
+            [TokenType.ASSIGN.name, "="],
+            [TokenType.PLUS.name, "+"],
+            [TokenType.LPAREN.name, "("],
+            [TokenType.RPAREN.name, ")"],
+            [TokenType.LBRACE.name, "{"],
+            [TokenType.RBRACE.name, "}"],
+            [TokenType.COMMA.name, ","],
+            [TokenType.SEMICOLON.name, ";"],
+            [TokenType.EOF.name, ""],
         ]
 
         for i in range(len(code)):
             token = lexer.next_token()
             self.assertEqual(code[i], token.literal)
-            self.assertEqual(expected[i][0], str(token.token_type))
+            self.assertEqual(expected[i][0], token.token_type.name)
             self.assertEqual(expected[i][1], token.literal)
 
     def test_lexer_second(self):
@@ -35,49 +37,49 @@ let result = add(five, ten);'''
         lexer = Lexer(code)
 
         expected = [
-            ["TokenType.LET", "let"], 
-            ["TokenType.IDENT", "five"], 
-            ["TokenType.ASSIGN", "="], 
-            ["TokenType.INT", "5"], 
-            ["TokenType.SEMICOLON", ";"], 
-            ["TokenType.LET", "let"], 
-            ["TokenType.IDENT", "ten"], 
-            ["TokenType.ASSIGN", "="], 
-            ["TokenType.INT", "10"], 
-            ["TokenType.SEMICOLON", ";"], 
-            ["TokenType.LET", "let"], 
-            ["TokenType.IDENT", "add"], 
-            ["TokenType.ASSIGN", "="], 
-            ["TokenType.FUNCTION", "fn"], 
-            ["TokenType.LPAREN", "("], 
-            ["TokenType.IDENT", "x"],
-            ["TokenType.COMMA", ","], 
-            ["TokenType.IDENT", "y"], 
-            ["TokenType.RPAREN", ")"],
-            ["TokenType.LBRACE", "{"],
-            ["TokenType.IDENT", "x"],
-            ["TokenType.PLUS", "+"],
-            ["TokenType.IDENT", "y"],
-            ["TokenType.SEMICOLON", ";"],
-            ["TokenType.RBRACE", "}"],
-            ["TokenType.SEMICOLON", ";"],
-            ["TokenType.LET", "let"],
-            ["TokenType.IDENT", "result"],
-            ["TokenType.ASSIGN", "="],
-            ["TokenType.IDENT", "add"],
-            ["TokenType.LPAREN", "("],
-            ["TokenType.IDENT", "five"],
-            ["TokenType.COMMA", ","],
-            ["TokenType.IDENT", "ten"],
-            ["TokenType.RPAREN", ")"],
-            ["TokenType.SEMICOLON", ";"],
-            ["TokenType.EOF", ""],
+            [TokenType.LET.name, "let"], 
+            [TokenType.IDENT.name, "five"], 
+            [TokenType.ASSIGN.name, "="], 
+            [TokenType.INT.name, "5"], 
+            [TokenType.SEMICOLON.name, ";"], 
+            [TokenType.LET.name, "let"], 
+            [TokenType.IDENT.name, "ten"], 
+            [TokenType.ASSIGN.name, "="], 
+            [TokenType.INT.name, "10"], 
+            [TokenType.SEMICOLON.name, ";"], 
+            [TokenType.LET.name, "let"], 
+            [TokenType.IDENT.name, "add"], 
+            [TokenType.ASSIGN.name, "="], 
+            [TokenType.FUNCTION.name, "fn"], 
+            [TokenType.LPAREN.name, "("], 
+            [TokenType.IDENT.name, "x"],
+            [TokenType.COMMA.name, ","], 
+            [TokenType.IDENT.name, "y"], 
+            [TokenType.RPAREN.name, ")"],
+            [TokenType.LBRACE.name, "{"],
+            [TokenType.IDENT.name, "x"],
+            [TokenType.PLUS.name, "+"],
+            [TokenType.IDENT.name, "y"],
+            [TokenType.SEMICOLON.name, ";"],
+            [TokenType.RBRACE.name, "}"],
+            [TokenType.SEMICOLON.name, ";"],
+            [TokenType.LET.name, "let"],
+            [TokenType.IDENT.name, "result"],
+            [TokenType.ASSIGN.name, "="],
+            [TokenType.IDENT.name, "add"],
+            [TokenType.LPAREN.name, "("],
+            [TokenType.IDENT.name, "five"],
+            [TokenType.COMMA.name, ","],
+            [TokenType.IDENT.name, "ten"],
+            [TokenType.RPAREN.name, ")"],
+            [TokenType.SEMICOLON.name, ";"],
+            [TokenType.EOF.name, ""],
         ]
 
         for i in range(len(code)):
             token = lexer.next_token()
             self.assertEqual(code[i], token.literal)
-            self.assertEqual(expected[i][0], str(token.token_type))
+            self.assertEqual(expected[i][0], token.token_type.name)
             self.assertEqual(expected[i][1], token.literal)
 
 
