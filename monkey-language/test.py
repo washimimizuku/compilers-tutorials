@@ -32,7 +32,16 @@ let ten = 10;
    let add = fn(x, y) {
      x + y;
 };
-let result = add(five, ten);'''
+let result = add(five, ten);
+!-/*5;
+5 < 10 > 5;
+
+if (5 < 10) {
+    return true;
+} else {
+    return false;
+}
+'''
         lexer = Lexer(code)
 
         expected = [
@@ -72,7 +81,6 @@ let result = add(five, ten);'''
             [TokenType.IDENT.name, "ten"],
             [TokenType.RPAREN.name, ")"],
             [TokenType.SEMICOLON.name, ";"],
-            [TokenType.EOF.name, ""],
         ]
 
         for i in range(len(expected)):

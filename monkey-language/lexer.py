@@ -4,6 +4,11 @@ class Lexer():
     KEYWORDS = {
         'fn': TokenType.FUNCTION,
         'let': TokenType.LET,
+        'true': TokenType.TRUE,
+        'false': TokenType.FALSE,
+        'if': TokenType.IF,
+        'else': TokenType.ELSE,
+        'return': TokenType.RETURN,
     }
 
     def __init__(self, code: str) -> None:
@@ -30,16 +35,28 @@ class Lexer():
 
         if self.ch == '=':
             tok = Token(TokenType.ASSIGN, self.ch)
+        elif self.ch == '+':
+            tok = Token(TokenType.PLUS, self.ch)
+        elif self.ch == '-':
+            tok = Token(TokenType.MINUS, self.ch)
+        elif self.ch == '!':
+            tok = Token(TokenType.BANG, self.ch)
+        elif self.ch == '/':
+            tok = Token(TokenType.SLASH, self.ch)
+        elif self.ch == '*':
+            tok = Token(TokenType.ASTERISK, self.ch)
+        elif self.ch == '<':
+            tok = Token(TokenType.LT, self.ch)
+        elif self.ch == '>':
+            tok = Token(TokenType.GT, self.ch)
         elif self.ch == ';':
             tok = Token(TokenType.SEMICOLON, self.ch)
+        elif self.ch == ',':
+            tok = Token(TokenType.COMMA, self.ch)
         elif self.ch == '(':
             tok = Token(TokenType.LPAREN, self.ch)
         elif self.ch == ')':
             tok = Token(TokenType.RPAREN, self.ch)
-        elif self.ch == ',':
-            tok = Token(TokenType.COMMA, self.ch)
-        elif self.ch == '+':
-            tok = Token(TokenType.PLUS, self.ch)
         elif self.ch == '{':
             tok = Token(TokenType.LBRACE, self.ch)
         elif self.ch == '}':

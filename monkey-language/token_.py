@@ -11,6 +11,13 @@ class TokenType(enum.Enum):
     # Operators
     ASSIGN = "="
     PLUS = "+"
+    MINUS = "-"
+    BANG = "!"
+    ASTERISK = "*"
+    SLASH = "/"
+
+    LT = "<"
+    GT = ">"
 
     # Delimeters
     COMMA = ","
@@ -24,6 +31,11 @@ class TokenType(enum.Enum):
     # Keywords
     FUNCTION = "FUNCTION"
     LET = "LET"
+    TRUE = "TRUE"
+    FALSE = "FALSE"
+    IF = "IF"
+    ELSE = "ELSE"
+    RETURN = "RETURN"
 
 class Token:
 
