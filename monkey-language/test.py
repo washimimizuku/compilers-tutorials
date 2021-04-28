@@ -21,9 +21,8 @@ class TestLexer(unittest.TestCase):
             [TokenType.EOF.name, ""],
         ]
 
-        for i in range(len(code)):
+        for i in range(len(expected)):
             token = lexer.next_token()
-            self.assertEqual(code[i], token.literal)
             self.assertEqual(expected[i][0], token.token_type.name)
             self.assertEqual(expected[i][1], token.literal)
 
@@ -76,9 +75,8 @@ let result = add(five, ten);'''
             [TokenType.EOF.name, ""],
         ]
 
-        for i in range(len(code)):
+        for i in range(len(expected)):
             token = lexer.next_token()
-            self.assertEqual(code[i], token.literal)
             self.assertEqual(expected[i][0], token.token_type.name)
             self.assertEqual(expected[i][1], token.literal)
 

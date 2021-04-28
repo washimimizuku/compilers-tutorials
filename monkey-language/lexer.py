@@ -1,6 +1,10 @@
 from token_ import Token, TokenType
 
 class Lexer():
+    KEYWORDS = {
+        'fn': TokenType.FUNCTION,
+        'let': TokenType.LET,
+    }
 
     def __init__(self, code: str) -> None:
         self.code = code
@@ -22,6 +26,8 @@ class Lexer():
     def next_token(self) -> Token:
         tok: Token
 
+        self.skip_whitespace()
+
         if self.ch == '=':
             tok = Token(TokenType.ASSIGN, self.ch)
         elif self.ch == ';':
@@ -41,8 +47,56 @@ class Lexer():
         elif self.ch == "\0":
             tok = Token(TokenType.EOF, "")
         else:
-            tok = Token(TokenType.ILLEGAL, "")
+            if self.is_letter(self.ch):
+                literal = self.read_identifer()
+                token_type = self.lookup_identifier(literal)
+                tok = Token(token_type, literal)
+                return tok
+            elif self.is_digit(self.ch):
+                tok = Token(TokenType.INT, self.read_number())
+                return tok
+            else:
+                tok = Token(TokenType.ILLEGAL, self.ch)
 
         self.read_char()
 
         return tok
+
+
+    def read_identifer(self) -> str:
+        position = self.position
+
+        while self.is_letter(self.ch):
+            self.read_char()
+
+        return self.code[position:self.position]
+
+
+    def is_letter(self, ch: str) -> bool:
+        return ch.isalpha() or ch == '_'
+
+    
+    def read_number(self) -> str:
+        position = self.position
+
+        while self.is_digit(self.ch):
+            self.read_char()
+
+        return self.code[position:self.position]
+
+
+    def is_digit(self, ch: str) -> bool:
+        return ch.isdigit()
+    
+
+    def lookup_identifier(self, identifier: str) -> TokenType:
+        if identifier in self.KEYWORDS.keys():
+            return self.KEYWORDS[identifier]
+        else:
+            return TokenType.IDENT
+
+
+    def skip_whitespace(self):
+        while self.ch in [' ', '\t', '\r', '\n']:
+            self.read_char()
+

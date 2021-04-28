@@ -25,9 +25,7 @@ class TokenType(enum.Enum):
     FUNCTION = "FUNCTION"
     LET = "LET"
 
-
 class Token:
-    """Represents a token."""
 
     def __init__(self, token_type: TokenType, literal: str) -> None:
         self.token_type = token_type
