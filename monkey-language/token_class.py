@@ -32,9 +32,3 @@ class Token:
     def __init__(self, tp: TokenType, literal: str) -> None:
         self.tp = tp
         self.literal = literal
-
-    def __repr__(self) -> str:
-        return f"<Token type: {self.tp} literal: {self.literal}>"
-
-    def __str__(self) -> str:
-        return f"<Token type: {self.tp} literal: {self.literal}>"
