@@ -1,5 +1,5 @@
 import typing
-from token_ import Token
+from monkey.token import Token
 
 
 class Node():

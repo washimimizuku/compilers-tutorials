@@ -1,6 +1,6 @@
-from ast import Program
-from lexer import Lexer
-from token_ import Token
+from monkey.ast import Program
+from monkey.lexer import Lexer
+from monkey.token import Token
 
 
 class Parser():
