@@ -23,11 +23,16 @@ class TestLexer(unittest.TestCase):
 
         for i in range(len(expected)):
             token = lexer.next_token()
-            self.assertEqual(expected[i][0], token.token_type.name, f"expected[{i}] - tokentype wrong. expected={expected[i][0]}, got={token.token_type.name}")
-            self.assertEqual(expected[i][1], token.literal, f"expected[{i}] - tokentype wrong. expected={expected[i][1]}, got={token.literal}")
+            self.assertEqual(expected[i][0],
+                             token.token_type.name,
+                             f"expected[{i}] - tokentype wrong. expected={expected[i][0]}, got={token.token_type.name}")
+            self.assertEqual(expected[i][1],
+                             token.literal,
+                             f"expected[{i}] - tokentype wrong. expected={expected[i][1]}, got={token.literal}")
 
     def test_variables_and_functions(self):
-        code = '''let five = 5;
+        code = '''
+let five = 5;
 let ten = 10;
    let add = fn(x, y) {
      x + y;
@@ -78,8 +83,12 @@ let result = add(five, ten);
 
         for i in range(len(expected)):
             token = lexer.next_token()
-            self.assertEqual(expected[i][0], token.token_type.name, f"expected[{i}] - tokentype wrong. expected={expected[i][0]}, got={token.token_type.name}")
-            self.assertEqual(expected[i][1], token.literal, f"expected[{i}] - tokentype wrong. expected={expected[i][1]}, got={token.literal}")
+            self.assertEqual(expected[i][0],
+                             token.token_type.name,
+                             f"expected[{i}] - tokentype wrong. expected={expected[i][0]}, got={token.token_type.name}")
+            self.assertEqual(expected[i][1],
+                             token.literal,
+                             f"expected[{i}] - tokentype wrong. expected={expected[i][1]}, got={token.literal}")
 
     def test_advanced_operators(self):
         code = "!-/*5;"
@@ -97,11 +106,16 @@ let result = add(five, ten);
 
         for i in range(len(expected)):
             token = lexer.next_token()
-            self.assertEqual(expected[i][0], token.token_type.name, f"expected[{i}] - tokentype wrong. expected={expected[i][0]}, got={token.token_type.name}")
-            self.assertEqual(expected[i][1], token.literal, f"expected[{i}] - tokentype wrong. expected={expected[i][1]}, got={token.literal}")
+            self.assertEqual(expected[i][0],
+                             token.token_type.name,
+                             f"expected[{i}] - tokentype wrong. expected={expected[i][0]}, got={token.token_type.name}")
+            self.assertEqual(expected[i][1],
+                             token.literal,
+                             f"expected[{i}] - tokentype wrong. expected={expected[i][1]}, got={token.literal}")
 
     def test_if_else(self):
-        code = '''if (5 < 10) {
+        code = '''
+if (5 < 10) {
     return true;
 } else {
     return false;
@@ -132,11 +146,16 @@ let result = add(five, ten);
 
         for i in range(len(expected)):
             token = lexer.next_token()
-            self.assertEqual(expected[i][0], token.token_type.name, f"expected[{i}] - tokentype wrong. expected={expected[i][0]}, got={token.token_type.name}")
-            self.assertEqual(expected[i][1], token.literal, f"expected[{i}] - tokentype wrong. expected={expected[i][1]}, got={token.literal}")
+            self.assertEqual(expected[i][0],
+                             token.token_type.name,
+                             f"expected[{i}] - tokentype wrong. expected={expected[i][0]}, got={token.token_type.name}")
+            self.assertEqual(expected[i][1],
+                             token.literal,
+                             f"expected[{i}] - tokentype wrong. expected={expected[i][1]}, got={token.literal}")
 
     def test_comparison_operators(self):
-        code = '''5 < 10 > 5;
+        code = '''
+5 < 10 > 5;
 10 == 10;
 10 != 9;
 '''
@@ -162,8 +181,12 @@ let result = add(five, ten);
 
         for i in range(len(expected)):
             token = lexer.next_token()
-            self.assertEqual(expected[i][0], token.token_type.name, f"expected[{i}] - tokentype wrong. expected={expected[i][0]}, got={token.token_type.name}")
-            self.assertEqual(expected[i][1], token.literal, f"expected[{i}] - tokentype wrong. expected={expected[i][1]}, got={token.literal}")
+            self.assertEqual(expected[i][0],
+                             token.token_type.name,
+                             f"expected[{i}] - tokentype wrong. expected={expected[i][0]}, got={token.token_type.name}")
+            self.assertEqual(expected[i][1],
+                             token.literal,
+                             f"expected[{i}] - tokentype wrong. expected={expected[i][1]}, got={token.literal}")
 
 
 if __name__ == '__main__':

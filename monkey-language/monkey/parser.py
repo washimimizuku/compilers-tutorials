@@ -13,12 +13,9 @@ class Parser():
         self.next_token()
         self.next_token()
 
-
     def next_token(self) -> None:
         self.current_token = self.peek_token
         self.peek_token = self.lexer.next_token()
 
-
     def parse_program(self) -> Program:
         return None
-    

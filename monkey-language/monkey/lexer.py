@@ -1,14 +1,16 @@
 from monkey.token import Token, TokenType
 
+
 class Lexer():
     def __init__(self, code: str) -> None:
         self.code = code
-        self.position = 0 # Current position in input (points to current char)
-        self.read_position = 0 # Current reading position in input (after current char)
-        self.ch = '' # Current char under examination
+        self.position = 0  # Current position in input (points to current char)
+        # Current reading position in input (after current char)
+        self.read_position = 0
+        self.ch = ''  # Current char under examination
 
         self.read_char()
-    
+
     def read_char(self) -> None:
         if self.read_position >= len(self.code):
             self.ch = '\0'
@@ -24,7 +26,7 @@ class Lexer():
         self.skip_whitespace()
 
         if self.ch == '=':
-            if self.peek_char() == '=': 
+            if self.peek_char() == '=':
                 ch = self.ch
                 self.read_char()
                 literal = ch + self.ch
@@ -36,7 +38,7 @@ class Lexer():
         elif self.ch == '-':
             tok = Token(TokenType.MINUS, self.ch)
         elif self.ch == '!':
-            if self.peek_char() == '=': 
+            if self.peek_char() == '=':
                 ch = self.ch
                 self.read_char()
                 literal = ch + self.ch
@@ -81,7 +83,6 @@ class Lexer():
 
         return tok
 
-
     def read_identifer(self) -> str:
         position = self.position
 
@@ -90,11 +91,9 @@ class Lexer():
 
         return self.code[position:self.position]
 
-
     def is_letter(self, ch: str) -> bool:
         return ch.isalpha() or ch == '_'
 
-    
     def read_number(self) -> str:
         position = self.position
 
@@ -103,17 +102,14 @@ class Lexer():
 
         return self.code[position:self.position]
 
-
     def is_digit(self, ch: str) -> bool:
         return ch.isdigit()
-    
 
     def lookup_identifier(self, identifier: str) -> TokenType:
         if identifier in Token.KEYWORDS.keys():
             return Token.KEYWORDS[identifier]
         else:
             return TokenType.IDENT
-
 
     def skip_whitespace(self):
         while self.ch in [' ', '\t', '\r', '\n']:

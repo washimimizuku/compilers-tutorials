@@ -3,6 +3,7 @@ from monkey.token import Token, TokenType
 
 PROMPT = '>> '
 
+
 def start() -> None:
     while True:
         line = input(PROMPT)
@@ -16,4 +17,3 @@ def start() -> None:
 
 if __name__ == "__main__":
     start()
-    

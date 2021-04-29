@@ -1,12 +1,13 @@
 import enum
 
+
 class TokenType(enum.Enum):
     ILLEGAL = "ILLEGAL"
     EOF = "EOF"
 
     # Identifiers and literals
-    IDENT = "IDENT" # add, foobar, x, y, ...
-    INT = "INT" # 1343456
+    IDENT = "IDENT"  # add, foobar, x, y, ...
+    INT = "INT"  # 1343456
 
     # Operators
     ASSIGN = "="
@@ -38,6 +39,7 @@ class TokenType(enum.Enum):
     IF = "IF"
     ELSE = "ELSE"
     RETURN = "RETURN"
+
 
 class Token:
     KEYWORDS = {

@@ -44,7 +44,7 @@ class Identifier(Expression):
 
 
 class LetStatement(Statement):
-    def __init__(self, token:Token) -> None:
+    def __init__(self, token: Token) -> None:
         self.token = token
         self.name: Identifier
         self.value: Expression
