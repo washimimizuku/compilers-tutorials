@@ -6,6 +6,9 @@ class Node():
     def token_literal(self) -> str:
         raise NotImplementedError()
 
+    def __str__(self) -> str:
+        raise NotImplementedError()
+
 
 class Statement(Node):
     def statement_node(self) -> None:
@@ -29,6 +32,12 @@ class Program():
         else:
             return ''
 
+    def __str__(self) -> str:
+        program = ""
+        for statement in self.statements:
+            program += str(statement)
+        return program
+
 
 class Identifier(Expression):
     def __init__(self, token: Token, value: str) -> None:
@@ -42,12 +51,15 @@ class Identifier(Expression):
     def token_literal(self) -> str:
         return self.token.literal
 
+    def __str__(self) -> str:
+        return str(self.value)
+
 
 class LetStatement(Statement):
     def __init__(self, token: Token) -> None:
         self.token = token
-        self.name: Identifier
-        self.value: Expression
+        self.name: Identifier = None
+        self.value: Expression = None
 
     def statement_node(self) -> None:
         # Just for debugging
@@ -55,11 +67,19 @@ class LetStatement(Statement):
 
     def token_literal(self) -> str:
         return self.token.literal
+
+    def __str__(self) -> str:
+        statement = str(self.token_literal()) + " " + str(self.name) + " = "
+        if self.value is not None:
+            statement += str(self.value)
+        statement += ";"
+        return statement
 
 
 class ReturnStatement(Statement):
     def __init__(self, token: Token) -> None:
         self.token = token
+        self.return_value: Expression = None
 
     def statement_node(self) -> None:
         # Just for debugging
@@ -67,3 +87,29 @@ class ReturnStatement(Statement):
 
     def token_literal(self) -> str:
         return self.token.literal
+
+    def __str__(self) -> str:
+        statement = str(self.token_literal()) + " "
+        if self.return_value is not None:
+            statement += str(self.return_value)
+        statement += ";"
+        return statement
+
+
+class ExpressionStatement(Statement):
+    def __init__(self, token: Token, expression: Expression) -> None:
+        self.token = token
+        self.expression = expression
+
+    def statement_node(self) -> None:
+        # Just for debugging
+        pass
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+    def __str__(self) -> str:
+        if self.expression is not None:
+            return str(self.expression)
+        else:
+            return ""
