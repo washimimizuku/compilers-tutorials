@@ -6,6 +6,7 @@ from monkey.token import Token, TokenType
 class Parser():
     def __init__(self, lexer: Lexer) -> None:
         self.lexer = lexer
+        self.errors = []
         self.current_token = None
         self.peek_token = None
 
@@ -21,7 +22,7 @@ class Parser():
         program = Program()
         program.statements = []
 
-        while self.current_token.token_type != TokenType.EOF:
+        while not self.current_token_is(TokenType.EOF):
             statement = self.parse_statement()
             if statement != None:
                 program.statements.append(statement)
@@ -30,7 +31,7 @@ class Parser():
         return program
 
     def parse_statement(self) -> Statement:
-        if self.current_token.token_type == TokenType.LET:
+        if self.current_token_is(TokenType.LET):
             return self.parse_let_statement()
         else:
             return None
@@ -64,4 +65,9 @@ class Parser():
             self.next_token()
             return True
         else:
+            self.peek_error(token_type)
             return False
+
+    def peek_error(self, token_type: TokenType):
+        message = f"Expected next token to be {token_type}, got {self.peek_token.token_type} instead"
+        self.errors.append(message)
