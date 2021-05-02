@@ -1,4 +1,4 @@
-from monkey.ast import Program, Statement, LetStatement, Identifier
+from monkey.ast import Program, Statement, LetStatement, ReturnStatement, Identifier
 from monkey.lexer import Lexer
 from monkey.token import Token, TokenType
 
@@ -33,6 +33,8 @@ class Parser():
     def parse_statement(self) -> Statement:
         if self.current_token_is(TokenType.LET):
             return self.parse_let_statement()
+        elif self.current_token_is(TokenType.RETURN):
+            return self.parse_return_statement()
         else:
             return None
 
@@ -47,6 +49,17 @@ class Parser():
 
         if not self.expect_peek(TokenType.ASSIGN):
             return None
+
+        # TODO: We are skipping the expressions until we encounter a semicolon
+        while not self.current_token_is(TokenType.SEMICOLON):
+            self.next_token()
+
+        return statement
+
+    def parse_return_statement(self) -> ReturnStatement:
+        statement = ReturnStatement(self.current_token)
+
+        self.next_token()
 
         # TODO: We are skipping the expressions until we encounter a semicolon
         while not self.current_token_is(TokenType.SEMICOLON):

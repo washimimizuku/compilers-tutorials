@@ -1,4 +1,4 @@
-from monkey.ast import Statement, LetStatement
+from monkey.ast import Statement, LetStatement, ReturnStatement
 from monkey.lexer import Lexer
 from monkey.parser import Parser
 import unittest
@@ -23,7 +23,7 @@ let foobar = 838383;
                          f"program.Statements does not contain 3 statements. got={len(program.statements)}")
 
         expected = ['x', 'y', 'foobar']
-        for i in range(3):
+        for i in range(len(program.statements)):
             self._test_let_statement(program.statements[i], expected[i])
 
     def test_invalid_let_statements(self):
@@ -38,6 +38,27 @@ let 838383;
         parser.parse_program()
         with self.assertRaises(AssertionError):
             self._check_parser_errors(parser)
+
+    def test_return_statements(self):
+        code = '''
+return 5;
+return 10;
+return 993322;
+'''
+        lexer = Lexer(code)
+        parser = Parser(lexer)
+
+        program = parser.parse_program()
+        self._check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 3,
+                         f"program.Statements does not contain 3 statements. got={len(program.statements)}")
+
+        for statement in program.statements:
+            self.assertIsInstance(statement, ReturnStatement,
+                                  f"statement not 'return'. got={statement}")
+            self.assertEqual(statement.token_literal(),
+                             'return', f"statement.token_literal not 'return'. got={statement.token_literal()}")
 
     def _test_let_statement(self, statement: Statement, name: str):
         self.assertEqual(statement.token_literal(),

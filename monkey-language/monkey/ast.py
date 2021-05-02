@@ -55,3 +55,15 @@ class LetStatement(Statement):
 
     def token_literal(self) -> str:
         return self.token.literal
+
+
+class ReturnStatement(Statement):
+    def __init__(self, token: Token) -> None:
+        self.token = token
+
+    def statement_node(self) -> None:
+        # Just for debugging
+        pass
+
+    def token_literal(self) -> str:
+        return self.token.literal
