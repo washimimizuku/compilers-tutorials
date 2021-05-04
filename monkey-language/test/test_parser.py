@@ -2,7 +2,7 @@ from monkey.ast import (
     Statement, LetStatement, ReturnStatement, ExpressionStatement,
     Identifier,
     IntegerLiteral,
-    PrefixExpression
+    PrefixExpression, InfixExpression
 )
 from monkey.lexer import Lexer
 from monkey.parser import Parser
@@ -132,6 +132,68 @@ return 993322;
             self.assertEqual(expression.operator, test[1],
                              f"expression.value not {test[1]}. got={expression.operator}")
             self._test_integer_literal(expression.right, test[2])
+
+    def test_parsing_infix_expressions(self):
+        infix_tests = [
+            ["5 + 5;", 5, "+", 5],
+            ["5 - 5;", 5, "-", 5],
+            ["5 * 5;", 5, "*", 5],
+            ["5 / 5;", 5, "/", 5],
+            ["5 > 5;", 5, ">", 5],
+            ["5 < 5;", 5, "<", 5],
+            ["5 == 5;", 5, "==", 5],
+            ["5 != 5;", 5, "!=", 5],
+        ]
+
+        for test in infix_tests:
+            code = test[0]
+            lexer = Lexer(code)
+            parser = Parser(lexer)
+
+            program = parser.parse_program()
+            self._check_parser_errors(parser)
+
+            self.assertEqual(len(program.statements), 1,
+                             f"program.statements does not contain 1 statement. got={len(program.statements)}")
+            self.assertIsInstance(program.statements[0], ExpressionStatement,
+                                  f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
+
+            expression = program.statements[0].expression
+            self.assertIsInstance(expression, InfixExpression,
+                                  f"expression is not an instance of InfixExpression. got={type(expression)}")
+
+            self._test_integer_literal(expression.left, test[1])
+            self.assertEqual(expression.operator, test[2],
+                             f"expression.value not {test[2]}. got={expression.operator}")
+            self._test_integer_literal(expression.right, test[3])
+
+    def test_operator_precedence_parsing(self):
+        infix_tests = [
+            ["-a * b", "((-a) * b)"],
+            ["!-a", "(!(-a))"],
+            ["a + b + c", "((a + b) + c)"],
+            ["a + b - c", "((a + b) - c)"],
+            ["a * b * c", "((a * b) * c)"],
+            ["a * b / c", "((a * b) / c)"],
+            ["a + b / c", "(a + (b / c))"],
+            ["a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)"],
+            ["3 + 4; -5 * 5", "(3 + 4)((-5) * 5)"],
+            ["5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))"],
+            ["5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"],
+            ["3 + 4 * 5 == 3 * 1 + 4 * 5",
+                "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"],
+        ]
+
+        for test in infix_tests:
+            code = test[0]
+            lexer = Lexer(code)
+            parser = Parser(lexer)
+
+            program = parser.parse_program()
+            self._check_parser_errors(parser)
+
+            self.assertEqual(
+                str(program), test[1], f"expected={test[1]} got={str(program)}")
 
     def _test_let_statement(self, statement: Statement, name: str):
         self.assertEqual(statement.token_literal(),
