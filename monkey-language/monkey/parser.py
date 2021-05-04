@@ -7,7 +7,7 @@ from monkey.ast import (
     Program,
     Statement, LetStatement, ReturnStatement,
     Identifier,
-    Expression, ExpressionStatement,
+    Expression, ExpressionStatement, PrefixExpression,
     IntegerLiteral
 )
 
@@ -40,6 +40,8 @@ class Parser():
         # Register prefix functions
         self.register_prefix(TokenType.IDENT, self.parse_identifier)
         self.register_prefix(TokenType.INT, self.parse_integer_literal)
+        self.register_prefix(TokenType.BANG, self.parse_prefix_expression)
+        self.register_prefix(TokenType.MINUS, self.parse_prefix_expression)
 
     def next_token(self) -> None:
         self.current_token = self.peek_token
@@ -105,13 +107,14 @@ class Parser():
         return statement
 
     def parse_expression(self, precedence: Precedence) -> Expression:
-        prefix = self.prefix_parse_functions[self.current_token.token_type]
-
-        if prefix is not None:
-            left_expression = prefix()
-            return left_expression
-        else:
+        try:
+            prefix = self.prefix_parse_functions[self.current_token.token_type]
+        except KeyError:
+            self.no_prefix_parse_function_error(self.current_token.token_type)
             return None
+
+        left_expression = prefix()
+        return left_expression
 
     def parse_identifier(self) -> Expression:
         return Identifier(self.current_token, self.current_token.literal)
@@ -128,6 +131,16 @@ class Parser():
 
         literal.value = value
         return literal
+
+    def parse_prefix_expression(self) -> Expression:
+        expression = PrefixExpression(
+            self.current_token, self.current_token.literal)
+
+        self.next_token()
+
+        expression.right = self.parse_expression(Precedence.PREFIX)
+
+        return expression
 
     def current_token_is(self, token_type: TokenType) -> bool:
         return self.current_token.token_type == token_type
@@ -152,3 +165,7 @@ class Parser():
 
     def register_infix(self, token_type: TokenType, function: typing.Callable[[Expression], typing.Optional[Expression]]) -> None:
         self.infix_parse_functions[token_type] = function
+
+    def no_prefix_parse_function_error(self, token_type: TokenType):
+        message = f"no prefix parse function for {token_type} found"
+        self.errors.append(message)
