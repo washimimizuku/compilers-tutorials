@@ -3,7 +3,13 @@ import typing
 
 from monkey.token import Token, TokenType
 from monkey.lexer import Lexer
-from monkey.ast import Program, Statement, LetStatement, ReturnStatement, Identifier, Expression, ExpressionStatement
+from monkey.ast import (
+    Program,
+    Statement, LetStatement, ReturnStatement,
+    Identifier,
+    Expression, ExpressionStatement,
+    IntegerLiteral
+)
 
 
 class Precedence(enum.Enum):
@@ -33,6 +39,7 @@ class Parser():
 
         # Register prefix functions
         self.register_prefix(TokenType.IDENT, self.parse_identifier)
+        self.register_prefix(TokenType.INT, self.parse_integer_literal)
 
     def next_token(self) -> None:
         self.current_token = self.peek_token
@@ -108,6 +115,19 @@ class Parser():
 
     def parse_identifier(self) -> Expression:
         return Identifier(self.current_token, self.current_token.literal)
+
+    def parse_integer_literal(self) -> Expression:
+        literal = IntegerLiteral(self.current_token)
+
+        try:
+            value = int(self.current_token.literal)
+        except ValueError:
+            message = f"Could not parse {self.current_token.literal} as integer."
+            self.errors.append(message)
+            return None
+
+        literal.value = value
+        return literal
 
     def current_token_is(self, token_type: TokenType) -> bool:
         return self.current_token.token_type == token_type

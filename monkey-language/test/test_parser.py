@@ -1,4 +1,8 @@
-from monkey.ast import Statement, LetStatement, ReturnStatement, ExpressionStatement, Identifier
+from monkey.ast import (
+    Statement, LetStatement, ReturnStatement, ExpressionStatement,
+    Identifier,
+    IntegerLiteral
+)
 from monkey.lexer import Lexer
 from monkey.parser import Parser
 import unittest
@@ -70,7 +74,7 @@ return 993322;
         self._check_parser_errors(parser)
 
         self.assertEqual(len(program.statements), 1,
-                         f"program.statements does not contain 1 statements. got={len(program.statements)}")
+                         f"program.statements does not contain 1 statement. got={len(program.statements)}")
         self.assertIsInstance(program.statements[0], ExpressionStatement,
                               f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
 
@@ -81,6 +85,27 @@ return 993322;
                          f"identifier.value not foobar. got={identifier.value}")
         self.assertEqual(identifier.token_literal(), "foobar",
                          f"identifier.token_literal() not foobar. got={identifier.token_literal()}")
+
+    def test_integer_literal_expression(self):
+        code = "5;"
+        lexer = Lexer(code)
+        parser = Parser(lexer)
+
+        program = parser.parse_program()
+        self._check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 1,
+                         f"program.statements does not contain 1 statement. got={len(program.statements)}")
+        self.assertIsInstance(program.statements[0], ExpressionStatement,
+                              f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
+
+        literal = program.statements[0].expression
+        self.assertIsInstance(literal, IntegerLiteral,
+                              f"expression is not an instance of IntegerLiteral. got={type(literal)}")
+        self.assertEqual(literal.value, 5,
+                         f"literal.value not 5. got={literal.value}")
+        self.assertEqual(literal.token_literal(), "5",
+                         f"literal.token_literal() not 5. got={literal.token_literal()}")
 
     def _test_let_statement(self, statement: Statement, name: str):
         self.assertEqual(statement.token_literal(),
