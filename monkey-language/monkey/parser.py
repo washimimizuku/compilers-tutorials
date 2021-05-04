@@ -1,18 +1,38 @@
-from monkey.ast import Program, Statement, LetStatement, ReturnStatement, Identifier
-from monkey.lexer import Lexer
+import enum
+import typing
+
 from monkey.token import Token, TokenType
+from monkey.lexer import Lexer
+from monkey.ast import Program, Statement, LetStatement, ReturnStatement, Identifier, Expression, ExpressionStatement
+
+
+class Precedence(enum.Enum):
+    LOWEST = 1
+    EQUALS = 2       # ==
+    LESSGREATER = 3  # > or <
+    SUM = 4          # +
+    PRODUCT = 5      # *
+    PREFIX = 6       # -x or !x
+    CALL = 7         # myFunction(x)
 
 
 class Parser():
     def __init__(self, lexer: Lexer) -> None:
         self.lexer = lexer
-        self.errors = []
+        self.errors: typing.List[str] = []
         self.current_token = None
         self.peek_token = None
+        self.prefix_parse_functions: typing.Dict[
+            TokenType, typing.Callable[[], typing.Optional[Expression]]] = {}
+        self.infix_parse_functions: typing.Dict[
+            TokenType, typing.Callable[[Expression], typing.Optional[Expression]]] = {}
 
         # Read two tokens, so current_token and peek_token are both set
         self.next_token()
         self.next_token()
+
+        # Register prefix functions
+        self.register_prefix(TokenType.IDENT, self.parse_identifier)
 
     def next_token(self) -> None:
         self.current_token = self.peek_token
@@ -36,7 +56,7 @@ class Parser():
         elif self.current_token_is(TokenType.RETURN):
             return self.parse_return_statement()
         else:
-            return None
+            return self.parse_expression_statement()
 
     def parse_let_statement(self) -> LetStatement:
         statement = LetStatement(self.current_token)
@@ -67,6 +87,28 @@ class Parser():
 
         return statement
 
+    def parse_expression_statement(self) -> ExpressionStatement:
+        statement = ExpressionStatement(self.current_token)
+
+        statement.expression = self.parse_expression(Precedence.LOWEST)
+
+        if self.peek_token_is(TokenType.SEMICOLON):
+            self.next_token()
+
+        return statement
+
+    def parse_expression(self, precedence: Precedence) -> Expression:
+        prefix = self.prefix_parse_functions[self.current_token.token_type]
+
+        if prefix is not None:
+            left_expression = prefix()
+            return left_expression
+        else:
+            return None
+
+    def parse_identifier(self) -> Expression:
+        return Identifier(self.current_token, self.current_token.literal)
+
     def current_token_is(self, token_type: TokenType) -> bool:
         return self.current_token.token_type == token_type
 
@@ -84,3 +126,9 @@ class Parser():
     def peek_error(self, token_type: TokenType):
         message = f"Expected next token to be {token_type}, got {self.peek_token.token_type} instead"
         self.errors.append(message)
+
+    def register_prefix(self, token_type: TokenType, function: typing.Callable[[], typing.Optional[Expression]]) -> None:
+        self.prefix_parse_functions[token_type] = function
+
+    def register_infix(self, token_type: TokenType, function: typing.Callable[[Expression], typing.Optional[Expression]]) -> None:
+        self.infix_parse_functions[token_type] = function

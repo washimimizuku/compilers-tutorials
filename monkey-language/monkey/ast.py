@@ -97,9 +97,9 @@ class ReturnStatement(Statement):
 
 
 class ExpressionStatement(Statement):
-    def __init__(self, token: Token, expression: Expression) -> None:
+    def __init__(self, token: Token) -> None:
         self.token = token
-        self.expression = expression
+        self.expression: Expression = None
 
     def statement_node(self) -> None:
         # Just for debugging

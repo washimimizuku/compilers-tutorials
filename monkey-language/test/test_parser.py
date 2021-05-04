@@ -1,4 +1,4 @@
-from monkey.ast import Statement, LetStatement, ReturnStatement
+from monkey.ast import Statement, LetStatement, ReturnStatement, ExpressionStatement, Identifier
 from monkey.lexer import Lexer
 from monkey.parser import Parser
 import unittest
@@ -20,7 +20,7 @@ let foobar = 838383;
 
         self.assertNotEqual(program, None, "parse_program() returned None")
         self.assertEqual(len(program.statements), 3,
-                         f"program.Statements does not contain 3 statements. got={len(program.statements)}")
+                         f"program.statements does not contain 3 statements. got={len(program.statements)}")
 
         expected = ['x', 'y', 'foobar']
         for i in range(len(program.statements)):
@@ -35,7 +35,8 @@ let 838383;
         lexer = Lexer(code)
         parser = Parser(lexer)
 
-        parser.parse_program()
+        with self.assertRaises(KeyError):
+            parser.parse_program()
         with self.assertRaises(AssertionError):
             self._check_parser_errors(parser)
 
@@ -52,13 +53,34 @@ return 993322;
         self._check_parser_errors(parser)
 
         self.assertEqual(len(program.statements), 3,
-                         f"program.Statements does not contain 3 statements. got={len(program.statements)}")
+                         f"program.statements does not contain 3 statements. got={len(program.statements)}")
 
         for statement in program.statements:
             self.assertIsInstance(statement, ReturnStatement,
                                   f"statement not 'return'. got={statement}")
             self.assertEqual(statement.token_literal(),
                              'return', f"statement.token_literal not 'return'. got={statement.token_literal()}")
+
+    def test_identifier_expression(self):
+        code = "foobar;"
+        lexer = Lexer(code)
+        parser = Parser(lexer)
+
+        program = parser.parse_program()
+        self._check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 1,
+                         f"program.statements does not contain 1 statements. got={len(program.statements)}")
+        self.assertIsInstance(program.statements[0], ExpressionStatement,
+                              f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
+
+        identifier = program.statements[0].expression
+        self.assertIsInstance(identifier, Identifier,
+                              f"expression is not an instance of Identifier. got={type(identifier)}")
+        self.assertEqual(identifier.value, "foobar",
+                         f"identifier.value not foobar. got={identifier.value}")
+        self.assertEqual(identifier.token_literal(), "foobar",
+                         f"identifier.token_literal() not foobar. got={identifier.token_literal()}")
 
     def _test_let_statement(self, statement: Statement, name: str):
         self.assertEqual(statement.token_literal(),
