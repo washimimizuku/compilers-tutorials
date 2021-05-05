@@ -1,7 +1,7 @@
 from monkey.ast import (
     Expression, PrefixExpression, InfixExpression,
     Identifier,
-    IntegerLiteral,
+    BooleanLiteral, IntegerLiteral,
     Statement, LetStatement, ReturnStatement, ExpressionStatement,
 )
 from monkey.lexer import Lexer
@@ -97,10 +97,34 @@ return 993322;
         literal = program.statements[0].expression
         self._test_integer_literal(literal, 5)
 
+    def test_boolean_literal_expression(self):
+        boolean_literal_tests = [
+            ["true;", True],
+            ["false;", False]
+        ]
+
+        for test in boolean_literal_tests:
+            code = test[0]
+            lexer = Lexer(code)
+            parser = Parser(lexer)
+
+            program = parser.parse_program()
+            self._check_parser_errors(parser)
+
+            self.assertEqual(len(program.statements), 1,
+                             f"program.statements does not contain 1 statement. got={len(program.statements)}")
+            self.assertIsInstance(program.statements[0], ExpressionStatement,
+                                  f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
+
+            literal = program.statements[0].expression
+            self._test_boolean_literal(literal, test[1])
+
     def test_parsing_prefix_expressions(self):
         prefix_tests = [
             ["!5", "!", 5],
-            ["-15", "-", 15]
+            ["-15", "-", 15],
+            ["!true;", "!", True],
+            ["!false;", "!", False],
         ]
 
         for test in prefix_tests:
@@ -129,6 +153,9 @@ return 993322;
             ["5 < 5;", 5, "<", 5],
             ["5 == 5;", 5, "==", 5],
             ["5 != 5;", 5, "!=", 5],
+            ["true == true", True, "==", True],
+            ["true != false", True, "!=", False],
+            ["false == false", False, "==", False],
         ]
 
         for test in infix_tests:
@@ -162,6 +189,10 @@ return 993322;
             ["5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"],
             ["3 + 4 * 5 == 3 * 1 + 4 * 5",
                 "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"],
+            ["true", "true"],
+            ["false", "false"],
+            ["3 > 5 == false", "((3 > 5) == false)"],
+            ["3 < 5 == true", "((3 < 5) == true)"],
         ]
 
         for test in infix_tests:
@@ -196,12 +227,11 @@ return 993322;
         self.fail(message)
 
     def _test_prefix_expression(self, expression: PrefixExpression, operator, right):
-
         self.assertIsInstance(expression, PrefixExpression,
                               f"expression is not an instance of PrefixExpression. got={type(expression)}")
         self.assertEqual(expression.operator, operator,
                          f"expression.operator not {operator}. got={expression.operator}")
-        self._test_integer_literal(expression.right, right)
+        self._test_literal_expression(expression.right, right)
 
     def _test_infix_expression(self, expression: InfixExpression, left, operator, right):
         self.assertIsInstance(expression, InfixExpression,
@@ -212,7 +242,9 @@ return 993322;
         self._test_literal_expression(expression.right, right)
 
     def _test_literal_expression(self, expression: Expression, expected):
-        if isinstance(expected, int):
+        if isinstance(expected, bool):
+            self._test_boolean_literal(expression, expected)
+        elif isinstance(expected, int):
             self._test_integer_literal(expression, expected)
         elif isinstance(expected, str):
             self._test_identifier(expression, expected)
@@ -224,6 +256,14 @@ return 993322;
                          f"integer_literal.value not {value}. got={integer_literal.value}")
         self.assertEqual(integer_literal.token_literal(), str(value),
                          f"integer_literal not {value}. got={integer_literal.token_literal()}")
+
+    def _test_boolean_literal(self, boolean_literal: BooleanLiteral, value: bool) -> None:
+        self.assertIsInstance(boolean_literal, BooleanLiteral,
+                              f"boolean_literal not BooleanLiteral. got={type(boolean_literal)}")
+        self.assertEqual(boolean_literal.value, value,
+                         f"boolean_literal.value not {value}. got={boolean_literal.value}")
+        self.assertEqual(boolean_literal.token_literal(), str(value).lower(),
+                         f"boolean_literal not {value}. got={boolean_literal.token_literal()}")
 
     def _test_identifier(self, expression: Identifier, value: str) -> None:
         self.assertIsInstance(expression, Identifier,

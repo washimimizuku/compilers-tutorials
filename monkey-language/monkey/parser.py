@@ -8,7 +8,7 @@ from monkey.ast import (
     Statement, LetStatement, ReturnStatement,
     Identifier,
     Expression, ExpressionStatement, PrefixExpression, InfixExpression,
-    IntegerLiteral
+    BooleanLiteral, IntegerLiteral
 )
 
 
@@ -54,6 +54,8 @@ class Parser():
         self.register_prefix(TokenType.INT, self.parse_integer_literal)
         self.register_prefix(TokenType.BANG, self.parse_prefix_expression)
         self.register_prefix(TokenType.MINUS, self.parse_prefix_expression)
+        self.register_prefix(TokenType.TRUE, self.parse_boolean_literal)
+        self.register_prefix(TokenType.FALSE, self.parse_boolean_literal)
 
         # Register infix functions
         self.register_infix(TokenType.PLUS, self.parse_infix_expression)
@@ -163,6 +165,11 @@ class Parser():
             return None
 
         literal.value = value
+        return literal
+
+    def parse_boolean_literal(self) -> Expression:
+        literal = BooleanLiteral(
+            self.current_token, self.current_token_is(TokenType.TRUE))
         return literal
 
     def parse_prefix_expression(self) -> Expression:
