@@ -1,8 +1,8 @@
 from monkey.ast import (
-    Statement, LetStatement, ReturnStatement, ExpressionStatement,
+    Expression, PrefixExpression, InfixExpression,
     Identifier,
     IntegerLiteral,
-    PrefixExpression, InfixExpression
+    Statement, LetStatement, ReturnStatement, ExpressionStatement,
 )
 from monkey.lexer import Lexer
 from monkey.parser import Parser
@@ -79,12 +79,7 @@ return 993322;
                               f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
 
         identifier = program.statements[0].expression
-        self.assertIsInstance(identifier, Identifier,
-                              f"expression is not an instance of Identifier. got={type(identifier)}")
-        self.assertEqual(identifier.value, "foobar",
-                         f"identifier.value not foobar. got={identifier.value}")
-        self.assertEqual(identifier.token_literal(), "foobar",
-                         f"identifier.token_literal() not foobar. got={identifier.token_literal()}")
+        self._test_identifier(identifier, "foobar")
 
     def test_integer_literal_expression(self):
         code = "5;"
@@ -100,12 +95,7 @@ return 993322;
                               f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
 
         literal = program.statements[0].expression
-        self.assertIsInstance(literal, IntegerLiteral,
-                              f"expression is not an instance of IntegerLiteral. got={type(literal)}")
-        self.assertEqual(literal.value, 5,
-                         f"literal.value not 5. got={literal.value}")
-        self.assertEqual(literal.token_literal(), "5",
-                         f"literal.token_literal() not 5. got={literal.token_literal()}")
+        self._test_integer_literal(literal, 5)
 
     def test_parsing_prefix_expressions(self):
         prefix_tests = [
@@ -127,11 +117,7 @@ return 993322;
                                   f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
 
             expression = program.statements[0].expression
-            self.assertIsInstance(expression, PrefixExpression,
-                                  f"expression is not an instance of PrefixExpression. got={type(expression)}")
-            self.assertEqual(expression.operator, test[1],
-                             f"expression.value not {test[1]}. got={expression.operator}")
-            self._test_integer_literal(expression.right, test[2])
+            self._test_prefix_expression(expression, test[1], test[2])
 
     def test_parsing_infix_expressions(self):
         infix_tests = [
@@ -159,13 +145,7 @@ return 993322;
                                   f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
 
             expression = program.statements[0].expression
-            self.assertIsInstance(expression, InfixExpression,
-                                  f"expression is not an instance of InfixExpression. got={type(expression)}")
-
-            self._test_integer_literal(expression.left, test[1])
-            self.assertEqual(expression.operator, test[2],
-                             f"expression.value not {test[2]}. got={expression.operator}")
-            self._test_integer_literal(expression.right, test[3])
+            self._test_infix_expression(expression, test[1], test[2], test[3])
 
     def test_operator_precedence_parsing(self):
         infix_tests = [
@@ -215,13 +195,43 @@ return 993322;
             message += f"parser error: {error}\n"
         self.fail(message)
 
-    def _test_integer_literal(self, integer_literal: IntegerLiteral, value: int) -> bool:
+    def _test_prefix_expression(self, expression: PrefixExpression, operator, right):
+
+        self.assertIsInstance(expression, PrefixExpression,
+                              f"expression is not an instance of PrefixExpression. got={type(expression)}")
+        self.assertEqual(expression.operator, operator,
+                         f"expression.operator not {operator}. got={expression.operator}")
+        self._test_integer_literal(expression.right, right)
+
+    def _test_infix_expression(self, expression: InfixExpression, left, operator, right):
+        self.assertIsInstance(expression, InfixExpression,
+                              f"expression not InfixExpression. got={type(expression)}")
+        self._test_literal_expression(expression.left, left)
+        self.assertEqual(expression.operator, operator,
+                         f"expression.operator not {operator}. got={expression.operator}")
+        self._test_literal_expression(expression.right, right)
+
+    def _test_literal_expression(self, expression: Expression, expected):
+        if isinstance(expected, int):
+            self._test_integer_literal(expression, expected)
+        elif isinstance(expected, str):
+            self._test_identifier(expression, expected)
+
+    def _test_integer_literal(self, integer_literal: IntegerLiteral, value: int) -> None:
         self.assertIsInstance(integer_literal, IntegerLiteral,
                               f"integer_literal not IntegerLiteral. got={type(integer_literal)}")
         self.assertEqual(integer_literal.value, value,
                          f"integer_literal.value not {value}. got={integer_literal.value}")
         self.assertEqual(integer_literal.token_literal(), str(value),
                          f"integer_literal not {value}. got={integer_literal.token_literal()}")
+
+    def _test_identifier(self, expression: Identifier, value: str) -> None:
+        self.assertIsInstance(expression, Identifier,
+                              f"expression not Identifier. got={type(expression)}")
+        self.assertEqual(expression.value, value,
+                         f"expression.value not {value}. got={expression.value}")
+        self.assertEqual(expression.token_literal(), value,
+                         f"expression.token_literal() not {value}. got={expression.token_literal()}")
 
 
 if __name__ == '__main__':
