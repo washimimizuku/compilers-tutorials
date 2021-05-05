@@ -17,7 +17,3 @@ class TestAST(unittest.TestCase):
 
         self.assertEqual(str(program), "let myVar = anotherVar;",
                          f"String representation for program is wrong, got {str(program)}")
-
-
-if __name__ == '__main__':
-    unittest.main()

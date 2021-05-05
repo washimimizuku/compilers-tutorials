@@ -187,7 +187,3 @@ if (5 < 10) {
             self.assertEqual(expected[i][1],
                              token.literal,
                              f"expected[{i}] - tokentype wrong. expected={expected[i][1]}, got={token.literal}")
-
-
-if __name__ == '__main__':
-    unittest.main()

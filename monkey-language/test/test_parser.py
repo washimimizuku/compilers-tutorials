@@ -272,7 +272,3 @@ return 993322;
                          f"expression.value not {value}. got={expression.value}")
         self.assertEqual(expression.token_literal(), value,
                          f"expression.token_literal() not {value}. got={expression.token_literal()}")
-
-
-if __name__ == '__main__':
-    unittest.main()
