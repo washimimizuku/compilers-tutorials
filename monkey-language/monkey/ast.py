@@ -129,7 +129,7 @@ class BlockStatement(Statement):
 
     def __str__(self) -> str:
         result = ""
-        for statement in statements:
+        for statement in self.statements:
             result += str(statement)
 
         return result
@@ -239,7 +239,7 @@ class IfExpression(Expression):
 
     def __str__(self) -> str:
         result = f"if {str(self.condition)} {self.consequence}"
-        if self.alternative is not None:
+        if hasattr(self, 'alternative') and self.alternative is not None:
             result += f"else {str(self.alternative)} "
         return result
 
@@ -259,7 +259,7 @@ class CallExpression(Expression):
 
     def __str__(self) -> str:
         arguments = []
-        for argument in arguments:
+        for argument in self.arguments:
             arguments.append(str(argument))
 
-        return f"{str(self.function)} ({', '.join(arguments)})"
+        return f"{str(self.function)}({', '.join(arguments)})"
