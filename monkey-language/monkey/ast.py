@@ -185,7 +185,7 @@ class FunctionLiteral(Expression):
         for parameter in parameters:
             parameters.append(str(parameter))
 
-        return f"{self.token_literal()} ( {parameters.join(', ')} ) {str(self.body)}"
+        return f"{self.token_literal()} ( {', '.join(parameters)} ) {str(self.body)}"
 
 
 class PrefixExpression(Expression):
@@ -242,3 +242,24 @@ class IfExpression(Expression):
         if self.alternative is not None:
             result += f"else {str(self.alternative)} "
         return result
+
+
+class CallExpression(Expression):
+    def __init__(self, token: Token, function: Expression) -> None:
+        self.token: Token = token
+        self.function: Expression = function
+        self.arguments: typing.List[Expression] = []
+
+    def expression_node(self) -> None:
+        # Just for debugging
+        pass
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+    def __str__(self) -> str:
+        arguments = []
+        for argument in arguments:
+            arguments.append(str(argument))
+
+        return f"{str(self.function)} ({', '.join(arguments)})"

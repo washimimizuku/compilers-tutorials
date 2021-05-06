@@ -1,5 +1,5 @@
 from monkey.ast import (
-    Expression, PrefixExpression, InfixExpression, IfExpression,
+    Expression, PrefixExpression, InfixExpression, IfExpression, CallExpression,
     Identifier,
     BooleanLiteral, IntegerLiteral, FunctionLiteral,
     Statement, LetStatement, ReturnStatement, ExpressionStatement,
@@ -179,6 +179,35 @@ return 993322;
             for i in range(len(test[1])):
                 self._test_literal_expression(
                     function.parameters[i], test[1][i])
+
+    def test_parsing_call_expression(self) -> None:
+        code = "add(1, 2 * 3, 4 + 5);"
+
+        lexer = Lexer(code)
+        parser = Parser(lexer)
+
+        program = parser.parse_program()
+        self._check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 1,
+                         f"program.statements does not contain 1 statement. got={len(program.statements)}")
+
+        statement = program.statements[0]
+        self.assertIsInstance(statement, ExpressionStatement,
+                              f"statement is not an instance of ExpressionStatement. got={type(statement)}")
+
+        expression = statement.expression
+        self.assertIsInstance(expression, CallExpression,
+                              f"statement.expression is not an instance of CallExpression. got={type(expression)}")
+
+        self._test_identifier(expression.function, "add")
+
+        self.assertEqual(len(expression.arguments), 3,
+                         f"wrong length of arguments. got={len(expression.arguments)}")
+
+        self._test_literal_expression(expression.arguments[0], 1)
+        self._test_infix_expression(expression.arguments[1],  2, "*", 3)
+        self._test_infix_expression(expression.arguments[2],  4, "+", 5)
 
     def test_parsing_prefix_expressions(self):
         prefix_tests = [

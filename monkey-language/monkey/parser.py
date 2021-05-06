@@ -7,7 +7,7 @@ from monkey.ast import (
     Program,
     Statement, LetStatement, ReturnStatement, BlockStatement,
     Identifier,
-    Expression, ExpressionStatement, PrefixExpression, InfixExpression, IfExpression,
+    Expression, ExpressionStatement, PrefixExpression, InfixExpression, IfExpression, CallExpression,
     BooleanLiteral, IntegerLiteral, FunctionLiteral,
 )
 
@@ -31,6 +31,7 @@ PRECEDENCES = {
     TokenType.MINUS: Precedence.SUM,
     TokenType.SLASH: Precedence.PRODUCT,
     TokenType.ASTERISK: Precedence.PRODUCT,
+    TokenType.LPAREN: Precedence.CALL,
 }
 
 
@@ -69,6 +70,7 @@ class Parser():
         self.register_infix(TokenType.NOT_EQ, self.parse_infix_expression)
         self.register_infix(TokenType.LT, self.parse_infix_expression)
         self.register_infix(TokenType.GT, self.parse_infix_expression)
+        self.register_infix(TokenType.LPAREN, self.parse_call_expression)
 
     def next_token(self) -> None:
         self.current_token = self.peek_token
@@ -296,6 +298,31 @@ class Parser():
 
         return expression
 
+    def parse_call_expression(self, function: Expression) -> Expression:
+        expression = CallExpression(self.current_token, function)
+        expression.arguments = self.parse_call_arguments()
+        return expression
+
+    def parse_call_arguments(self) -> typing.List[Expression]:
+        arguments: typing.List[Expression] = []
+
+        if self.peek_token_is(TokenType.RPAREN):
+            self.next_token()
+            return arguments
+
+        self.next_token()
+        arguments.append(self.parse_expression(Precedence.LOWEST))
+
+        while self.peek_token_is(TokenType.COMMA):
+            self.next_token()
+            self.next_token()
+            arguments.append(self.parse_expression(Precedence.LOWEST))
+
+        if not self.expect_peek(TokenType.RPAREN):
+            return None
+
+        return arguments
+
     def current_token_is(self, token_type: TokenType) -> bool:
         return self.current_token.token_type == token_type
 
@@ -311,7 +338,7 @@ class Parser():
             return False
 
     def peek_error(self, token_type: TokenType):
-        message = f"Expected next token to be {token_type}, got {self.peek_token.token_type} instead"
+        message = f"Expected next token to be {token_type.value}, got {self.peek_token.token_type.value} instead"
         self.errors.append(message)
 
     def register_prefix(self, token_type: TokenType, function: typing.Callable[[], typing.Optional[Expression]]) -> None:
