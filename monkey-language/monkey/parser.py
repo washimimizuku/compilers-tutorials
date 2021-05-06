@@ -5,9 +5,9 @@ from monkey.token import Token, TokenType
 from monkey.lexer import Lexer
 from monkey.ast import (
     Program,
-    Statement, LetStatement, ReturnStatement,
+    Statement, LetStatement, ReturnStatement, BlockStatement,
     Identifier,
-    Expression, ExpressionStatement, PrefixExpression, InfixExpression,
+    Expression, ExpressionStatement, PrefixExpression, InfixExpression, IfExpression,
     BooleanLiteral, IntegerLiteral
 )
 
@@ -57,6 +57,7 @@ class Parser():
         self.register_prefix(TokenType.TRUE, self.parse_boolean_literal)
         self.register_prefix(TokenType.FALSE, self.parse_boolean_literal)
         self.register_prefix(TokenType.LPAREN, self.parse_grouped_expression)
+        self.register_prefix(TokenType.IF, self.parse_if_expression)
 
         # Register infix functions
         self.register_infix(TokenType.PLUS, self.parse_infix_expression)
@@ -131,6 +132,20 @@ class Parser():
 
         return statement
 
+    def parse_block_statement(self) -> BlockStatement:
+        block = BlockStatement(self.current_token)
+        block.statements = []
+
+        self.next_token()
+
+        while not self.current_token_is(TokenType.RBRACE) and not self.current_token_is(TokenType.EOF):
+            statement = self.parse_statement()
+            if statement is not None:
+                block.statements.append(statement)
+            self.next_token()
+
+        return block
+
     def parse_expression(self, precedence: Precedence) -> Expression:
         try:
             prefix = self.prefix_parse_functions[self.current_token.token_type]
@@ -200,6 +215,33 @@ class Parser():
 
         if not self.expect_peek(TokenType.RPAREN):
             return None
+
+        return expression
+
+    def parse_if_expression(self) -> Expression:
+        expression = IfExpression(self.current_token)
+
+        if not self.expect_peek(TokenType.LPAREN):
+            return None
+
+        self.next_token()
+        expression.condition = self.parse_expression(Precedence.LOWEST)
+
+        if not self.expect_peek(TokenType.RPAREN):
+            return None
+
+        if not self.expect_peek(TokenType.LBRACE):
+            return None
+
+        expression.consequence = self.parse_block_statement()
+
+        if self.peek_token_is(TokenType.ELSE):
+            self.next_token()
+
+            if not self.expect_peek(TokenType.LBRACE):
+                return None
+
+            expression.alternative = self.parse_block_statement()
 
         return expression
 

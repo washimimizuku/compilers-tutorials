@@ -1,5 +1,5 @@
 from monkey.ast import (
-    Expression, PrefixExpression, InfixExpression,
+    Expression, PrefixExpression, InfixExpression, IfExpression,
     Identifier,
     BooleanLiteral, IntegerLiteral,
     Statement, LetStatement, ReturnStatement, ExpressionStatement,
@@ -173,6 +173,71 @@ return 993322;
 
             expression = program.statements[0].expression
             self._test_infix_expression(expression, test[1], test[2], test[3])
+
+    def test_if_expression(self):
+        code = "if (x < y) { x }"
+
+        lexer = Lexer(code)
+        parser = Parser(lexer)
+
+        program = parser.parse_program()
+        self._check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 1,
+                         f"program.statements does not contain 1 statement. got={len(program.statements)}")
+        self.assertIsInstance(program.statements[0], ExpressionStatement,
+                              f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
+
+        expression = program.statements[0].expression
+        self.assertIsInstance(expression, IfExpression,
+                              f"statement.expression is not an instance of IfExpression. got={type(expression)}")
+
+        self._test_infix_expression(expression.condition, "x", "<", "y")
+
+        self.assertEqual(len(expression.consequence.statements), 1,
+                         f"expression.consequence.statements does not contain 1 statement. got={len(expression.consequence.statements)}")
+
+        consequence = expression.consequence
+        self.assertIsInstance(consequence.statements[0], ExpressionStatement,
+                              f"consequence.Statements[0] is not an instance of ExpressionStatement. got={type(consequence.statements[0])}")
+
+        self._test_identifier(consequence.statements[0].expression, "x")
+
+        self.assertEqual(expression.alternative, None,
+                         f"expression.alternatibe is not None. got={(expression.alternative)}")
+
+    def test_if_else_expression(self):
+        code = "if (x < y) { x } else { y }"
+
+        lexer = Lexer(code)
+        parser = Parser(lexer)
+
+        program = parser.parse_program()
+        self._check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 1,
+                         f"program.statements does not contain 1 statement. got={len(program.statements)}")
+        self.assertIsInstance(program.statements[0], ExpressionStatement,
+                              f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
+
+        expression = program.statements[0].expression
+        self.assertIsInstance(expression, IfExpression,
+                              f"statement.expression is not an instance of IfExpression. got={type(expression)}")
+
+        self._test_infix_expression(expression.condition, "x", "<", "y")
+
+        self.assertEqual(len(expression.consequence.statements), 1,
+                         f"expression.consequence.statements does not contain 1 statement. got={len(expression.consequence.statements)}")
+
+        consequence = expression.consequence
+        self.assertIsInstance(consequence.statements[0], ExpressionStatement,
+                              f"consequence.Statements[0] is not an instance of ExpressionStatement. got={type(consequence.statements[0])}")
+
+        self._test_identifier(consequence.statements[0].expression, "x")
+
+        alternative = expression.alternative
+        self.assertIsInstance(alternative.statements[0], ExpressionStatement,
+                              f"alternative.Statements[0] is not an instance of ExpressionStatement. got={type(alternative.statements[0])}")
 
     def test_operator_precedence_parsing(self):
         infix_tests = [

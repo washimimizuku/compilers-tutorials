@@ -115,6 +115,26 @@ class ExpressionStatement(Statement):
             return ""
 
 
+class BlockStatement(Statement):
+    def __init__(self, token: Token) -> None:
+        self.token = token
+        self.statements: array = []
+
+    def statement_node(self) -> None:
+        # Just for debugging
+        pass
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+    def __str__(self) -> str:
+        result = ""
+        for statement in statements:
+            result += str(statement)
+
+        return result
+
+
 class IntegerLiteral(Expression):
     def __init__(self, token: Token) -> None:
         self.token = token
@@ -172,3 +192,24 @@ class InfixExpression(Expression):
 
     def __str__(self) -> str:
         return f"({str(self.left)} {self.operator} {str(self.right)})"
+
+
+class IfExpression(Expression):
+    def __init__(self, token: Token) -> None:
+        self.token = token
+        self.condition: Expression = None
+        self.consequence: BlockStatement = None
+        self.alternative: BlockStatement = None
+
+    def expression_node(self) -> None:
+        # Just for debugging
+        pass
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+    def __str__(self) -> str:
+        result = f"if {str(self.condition)} {self.consequence}"
+        if self.alternative is not None:
+            result += f"else {str(self.alternative)} "
+        return result
