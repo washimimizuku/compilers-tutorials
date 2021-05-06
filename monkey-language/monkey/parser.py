@@ -110,10 +110,7 @@ class Parser():
 
         self.next_token()
 
-        value = self.parse_expression(Precedence.LOWEST)
-        if value is None:
-            return None
-        statement.value = value
+        statement.value = self.parse_expression(Precedence.LOWEST)
 
         if self.peek_token_is(TokenType.SEMICOLON):
             self.next_token()
@@ -125,10 +122,7 @@ class Parser():
 
         self.next_token()
 
-        return_value = self.parse_expression(Precedence.LOWEST)
-        if return_value is None:
-            return None
-        statement.return_value = return_value
+        statement.return_value = self.parse_expression(Precedence.LOWEST)
 
         if self.peek_token_is(TokenType.SEMICOLON):
             self.next_token()

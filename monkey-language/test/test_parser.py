@@ -12,54 +12,61 @@ import unittest
 class TestParser(unittest.TestCase):
 
     def test_parsing_let_statements(self):
-        code = '''
-let x = 5;
-let y = 10;
-let foobar = 838383;
-'''
-        lexer = Lexer(code)
-        parser = Parser(lexer)
+        let_statements_tests = [
+            ["let x = 5;", "x", 5],
+            ["let y = true;", "y", True],
+            ["let foobar = y;", "foobar", "y"],
+        ]
 
-        program = parser.parse_program()
-        self._check_parser_errors(parser)
+        for test in let_statements_tests:
+            lexer = Lexer(test[0])
+            parser = Parser(lexer)
 
-        self.assertNotEqual(program, None, "parse_program() returned None")
-        self.assertEqual(len(program.statements), 3,
-                         f"program.statements does not contain 3 statements. got={len(program.statements)}")
-
-        expected = ['x', 'y', 'foobar']
-        for i in range(len(program.statements)):
-            self._test_let_statement(program.statements[i], expected[i])
-
-    def test_parsing_invalid_let_statements(self):
-        code = '''
-let x 5;
-let = 10;
-let 838383;
-'''
-        lexer = Lexer(code)
-        parser = Parser(lexer)
-
-        parser.parse_program()
-        with self.assertRaises(AssertionError):
+            program = parser.parse_program()
             self._check_parser_errors(parser)
 
+            self.assertEqual(len(program.statements), 1,
+                             f"program.statements does not contain 1 statement. got={len(program.statements)}")
+
+            statement = program.statements[0]
+            self._test_let_statement(statement, test[1])
+
+            value = statement.value
+            self._test_literal_expression(value, test[2])
+
+    def test_parsing_invalid_let_statements(self):
+        let_statements_tests = [
+            "let x 5;",
+            "let = 10;",
+            "let 838383;"
+        ]
+
+        for test in let_statements_tests:
+            lexer = Lexer(test)
+            parser = Parser(lexer)
+
+            parser.parse_program()
+            with self.assertRaises(AssertionError):
+                self._check_parser_errors(parser)
+
     def test_parsing_return_statements(self):
-        code = '''
-return 5;
-return 10;
-return 993322;
-'''
-        lexer = Lexer(code)
-        parser = Parser(lexer)
+        return_statements_tests = [
+            ["return 5;", 5],
+            ["return 10;", 10],
+            ["return 993322;", 993322],
+        ]
 
-        program = parser.parse_program()
-        self._check_parser_errors(parser)
+        for test in return_statements_tests:
+            lexer = Lexer(test[0])
+            parser = Parser(lexer)
 
-        self.assertEqual(len(program.statements), 3,
-                         f"program.statements does not contain 3 statements. got={len(program.statements)}")
+            program = parser.parse_program()
+            self._check_parser_errors(parser)
 
-        for statement in program.statements:
+            self.assertEqual(len(program.statements), 1,
+                             f"program.statements does not contain 1 statement. got={len(program.statements)}")
+
+            statement = program.statements[0]
             self.assertIsInstance(statement, ReturnStatement,
                                   f"statement not 'return'. got={statement}")
             self.assertEqual(statement.token_literal(),
@@ -354,6 +361,11 @@ return 993322;
             ["2 / (5 + 5)", "(2 / (5 + 5))"],
             ["-(5 + 5)", "(-(5 + 5))"],
             ["!(true == true)", "(!(true == true))"],
+            ["a + add(b * c) + d", "((a + add((b * c))) + d)"],
+            ["add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
+             "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"],
+            ["add(a + b + c * d / f + g)",
+             "add((((a + b) + ((c * d) / f)) + g))"],
         ]
 
         for test in infix_tests:
