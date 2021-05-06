@@ -56,6 +56,7 @@ class Parser():
         self.register_prefix(TokenType.MINUS, self.parse_prefix_expression)
         self.register_prefix(TokenType.TRUE, self.parse_boolean_literal)
         self.register_prefix(TokenType.FALSE, self.parse_boolean_literal)
+        self.register_prefix(TokenType.LPAREN, self.parse_grouped_expression)
 
         # Register infix functions
         self.register_infix(TokenType.PLUS, self.parse_infix_expression)
@@ -192,6 +193,16 @@ class Parser():
 
         return expression
 
+    def parse_grouped_expression(self) -> Expression:
+        self.next_token()
+
+        expression = self.parse_expression(Precedence.LOWEST)
+
+        if not self.expect_peek(TokenType.RPAREN):
+            return None
+
+        return expression
+
     def current_token_is(self, token_type: TokenType) -> bool:
         return self.current_token.token_type == token_type
 
@@ -217,7 +228,7 @@ class Parser():
         self.infix_parse_functions[token_type] = function
 
     def no_prefix_parse_function_error(self, token_type: TokenType):
-        message = f"no prefix parse function for {token_type} found"
+        message = f"no prefix parse function for {token_type.value} found"
         self.errors.append(message)
 
     def peek_precedence(self) -> int:
