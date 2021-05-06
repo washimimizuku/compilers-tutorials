@@ -8,7 +8,7 @@ from monkey.ast import (
     Statement, LetStatement, ReturnStatement, BlockStatement,
     Identifier,
     Expression, ExpressionStatement, PrefixExpression, InfixExpression, IfExpression,
-    BooleanLiteral, IntegerLiteral
+    BooleanLiteral, IntegerLiteral, FunctionLiteral,
 )
 
 
@@ -58,6 +58,7 @@ class Parser():
         self.register_prefix(TokenType.FALSE, self.parse_boolean_literal)
         self.register_prefix(TokenType.LPAREN, self.parse_grouped_expression)
         self.register_prefix(TokenType.IF, self.parse_if_expression)
+        self.register_prefix(TokenType.FUNCTION, self.parse_function_literal)
 
         # Register infix functions
         self.register_infix(TokenType.PLUS, self.parse_infix_expression)
@@ -105,8 +106,14 @@ class Parser():
         if not self.expect_peek(TokenType.ASSIGN):
             return None
 
-        # TODO: We are skipping the expressions until we encounter a semicolon
-        while not self.current_token_is(TokenType.SEMICOLON):
+        self.next_token()
+
+        value = self.parse_expression(Precedence.LOWEST)
+        if value is None:
+            return None
+        statement.value = value
+
+        if self.peek_token_is(TokenType.SEMICOLON):
             self.next_token()
 
         return statement
@@ -116,8 +123,12 @@ class Parser():
 
         self.next_token()
 
-        # TODO: We are skipping the expressions until we encounter a semicolon
-        while not self.current_token_is(TokenType.SEMICOLON):
+        return_value = self.parse_expression(Precedence.LOWEST)
+        if return_value is None:
+            return None
+        statement.return_value = return_value
+
+        if self.peek_token_is(TokenType.SEMICOLON):
             self.next_token()
 
         return statement
@@ -187,6 +198,46 @@ class Parser():
         literal = BooleanLiteral(
             self.current_token, self.current_token_is(TokenType.TRUE))
         return literal
+
+    def parse_function_literal(self) -> Expression:
+        literal = FunctionLiteral(self.current_token)
+
+        if not self.expect_peek(TokenType.LPAREN):
+            return None
+
+        literal.parameters = self.parse_function_parameters()
+
+        if not self.expect_peek(TokenType.LBRACE):
+            return None
+
+        literal.body = self.parse_block_statement()
+
+        return literal
+
+    def parse_function_parameters(self) -> typing.List[Identifier]:
+        identifiers: typing.List[Identifier] = []
+
+        if self.peek_token_is(TokenType.RPAREN):
+            self.next_token()
+            return identifiers
+
+        self.next_token()
+
+        identifier = Identifier(self.current_token, self.current_token.literal)
+        identifiers.append(identifier)
+
+        while self.peek_token_is(TokenType.COMMA):
+            self.next_token()
+            self.next_token()
+
+            identifier = Identifier(
+                self.current_token, self.current_token.literal)
+            identifiers.append(identifier)
+
+        if not self.expect_peek(TokenType.RPAREN):
+            return None
+
+        return identifiers
 
     def parse_prefix_expression(self) -> Expression:
         expression = PrefixExpression(

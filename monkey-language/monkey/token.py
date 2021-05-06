@@ -56,10 +56,6 @@ class Token:
         self.token_type = token_type
         self.literal = literal
 
-    def __repr__(self) -> str:
-        tok = {'token_type': self.token_type.name, 'literal': self.literal}
-        return str(tok)
-
     def __str__(self) -> str:
         tok = {'token_type': self.token_type.name, 'literal': self.literal}
         return str(tok)

@@ -41,8 +41,8 @@ class Program():
 
 class Identifier(Expression):
     def __init__(self, token: Token, value: str) -> None:
-        self.token = token
-        self.value = value
+        self.token: Token = token
+        self.value: str = value
 
     def expression_node(self) -> None:
         # Just for debugging
@@ -57,9 +57,9 @@ class Identifier(Expression):
 
 class LetStatement(Statement):
     def __init__(self, token: Token) -> None:
-        self.token = token
-        self.name: Identifier = None
-        self.value: Expression = None
+        self.token: Token = token
+        self.name: Identifier
+        self.value: Expression
 
     def statement_node(self) -> None:
         # Just for debugging
@@ -78,8 +78,8 @@ class LetStatement(Statement):
 
 class ReturnStatement(Statement):
     def __init__(self, token: Token) -> None:
-        self.token = token
-        self.return_value: Expression = None
+        self.token: Token = token
+        self.return_value: Expression
 
     def statement_node(self) -> None:
         # Just for debugging
@@ -98,8 +98,8 @@ class ReturnStatement(Statement):
 
 class ExpressionStatement(Statement):
     def __init__(self, token: Token) -> None:
-        self.token = token
-        self.expression: Expression = None
+        self.token: Token = token
+        self.expression: Expression
 
     def statement_node(self) -> None:
         # Just for debugging
@@ -117,8 +117,8 @@ class ExpressionStatement(Statement):
 
 class BlockStatement(Statement):
     def __init__(self, token: Token) -> None:
-        self.token = token
-        self.statements: array = []
+        self.token: Token = token
+        self.statements: typing.List[Statement] = []
 
     def statement_node(self) -> None:
         # Just for debugging
@@ -137,8 +137,12 @@ class BlockStatement(Statement):
 
 class IntegerLiteral(Expression):
     def __init__(self, token: Token) -> None:
-        self.token = token
+        self.token: Token = token
         self.value: int
+
+    def expression_node(self) -> None:
+        # Just for debugging
+        pass
 
     def token_literal(self) -> str:
         return self.token.literal
@@ -149,8 +153,12 @@ class IntegerLiteral(Expression):
 
 class BooleanLiteral(Expression):
     def __init__(self, token: Token, value: bool) -> None:
-        self.token = token
-        self.value = value
+        self.token: Token = token
+        self.value: bool = value
+
+    def expression_node(self) -> None:
+        # Just for debugging
+        pass
 
     def token_literal(self) -> str:
         return self.token.literal
@@ -159,11 +167,32 @@ class BooleanLiteral(Expression):
         return self.token_literal()
 
 
+class FunctionLiteral(Expression):
+    def __init__(self, token: Token) -> None:
+        self.token: Token = token
+        self.parameters: typing.List[Identifier] = []
+        self.body: BlockStatement
+
+    def expression_node(self) -> None:
+        # Just for debugging
+        pass
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+    def __str__(self) -> str:
+        parameters = []
+        for parameter in parameters:
+            parameters.append(str(parameter))
+
+        return f"{self.token_literal()} ( {parameters.join(', ')} ) {str(self.body)}"
+
+
 class PrefixExpression(Expression):
     def __init__(self, token: Token, operator: str) -> None:
-        self.token = token
-        self.operator = operator
-        self.right: Expression = None
+        self.token: Token = token
+        self.operator: str = operator
+        self.right: Expression
 
     def expression_node(self) -> None:
         # Just for debugging
@@ -178,10 +207,10 @@ class PrefixExpression(Expression):
 
 class InfixExpression(Expression):
     def __init__(self, token: Token, operator: str, left: Expression) -> None:
-        self.token = token
+        self.token: Token = token
         self.left: Expression = left
-        self.operator = operator
-        self.right: Expression = None
+        self.operator: str = operator
+        self.right: Expression
 
     def expression_node(self) -> None:
         # Just for debugging
@@ -196,10 +225,10 @@ class InfixExpression(Expression):
 
 class IfExpression(Expression):
     def __init__(self, token: Token) -> None:
-        self.token = token
-        self.condition: Expression = None
-        self.consequence: BlockStatement = None
-        self.alternative: BlockStatement = None
+        self.token: Token = token
+        self.condition: Expression
+        self.consequence: BlockStatement
+        self.alternative: BlockStatement
 
     def expression_node(self) -> None:
         # Just for debugging

@@ -1,7 +1,7 @@
 from monkey.ast import (
     Expression, PrefixExpression, InfixExpression, IfExpression,
     Identifier,
-    BooleanLiteral, IntegerLiteral,
+    BooleanLiteral, IntegerLiteral, FunctionLiteral,
     Statement, LetStatement, ReturnStatement, ExpressionStatement,
 )
 from monkey.lexer import Lexer
@@ -11,7 +11,7 @@ import unittest
 
 class TestParser(unittest.TestCase):
 
-    def test_let_statements(self):
+    def test_parsing_let_statements(self):
         code = '''
 let x = 5;
 let y = 10;
@@ -31,7 +31,7 @@ let foobar = 838383;
         for i in range(len(program.statements)):
             self._test_let_statement(program.statements[i], expected[i])
 
-    def test_invalid_let_statements(self):
+    def test_parsing_invalid_let_statements(self):
         code = '''
 let x 5;
 let = 10;
@@ -44,7 +44,7 @@ let 838383;
         with self.assertRaises(AssertionError):
             self._check_parser_errors(parser)
 
-    def test_return_statements(self):
+    def test_parsing_return_statements(self):
         code = '''
 return 5;
 return 10;
@@ -65,7 +65,7 @@ return 993322;
             self.assertEqual(statement.token_literal(),
                              'return', f"statement.token_literal not 'return'. got={statement.token_literal()}")
 
-    def test_identifier_expression(self):
+    def test_parsing_identifier_expression(self):
         code = "foobar;"
         lexer = Lexer(code)
         parser = Parser(lexer)
@@ -81,7 +81,7 @@ return 993322;
         identifier = program.statements[0].expression
         self._test_identifier(identifier, "foobar")
 
-    def test_integer_literal_expression(self):
+    def test_parsing_integer_literal_expression(self):
         code = "5;"
         lexer = Lexer(code)
         parser = Parser(lexer)
@@ -97,7 +97,7 @@ return 993322;
         literal = program.statements[0].expression
         self._test_integer_literal(literal, 5)
 
-    def test_boolean_literal_expression(self):
+    def test_parsing_boolean_literal_expression(self):
         boolean_literal_tests = [
             ["true;", True],
             ["false;", False]
@@ -118,6 +118,67 @@ return 993322;
 
             literal = program.statements[0].expression
             self._test_boolean_literal(literal, test[1])
+
+    def test_parsing_function_literal_expression(self):
+        code = "fn(x, y) { x + y; }"
+
+        lexer = Lexer(code)
+        parser = Parser(lexer)
+
+        program = parser.parse_program()
+        self._check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 1,
+                         f"program.statements does not contain 1 statement. got={len(program.statements)}")
+
+        statement = program.statements[0]
+        self.assertIsInstance(statement, ExpressionStatement,
+                              f"statement is not an instance of ExpressionStatement. got={type(statement)}")
+        function = statement.expression
+        self.assertIsInstance(function, FunctionLiteral,
+                              f"function is not an instance of FunctionLiteral. got={type(function)}")
+        self.assertEqual(len(function.parameters), 2,
+                         f"function literal parameters wrong. want 2,  got={len(function.parameters)}")
+
+        self._test_literal_expression(function.parameters[0], "x")
+        self._test_literal_expression(function.parameters[1], "y")
+
+        self.assertEqual(len(function.body.statements), 1,
+                         f"function.body.statements has not 1 statements, got={len(function.body.statements)}")
+
+        body_statement = function.body.statements[0]
+        self.assertIsInstance(body_statement, ExpressionStatement,
+                              f"function body statement is not an instance of ExpressionStatement. got={type(body_statement)}")
+        self._test_infix_expression(body_statement.expression, "x", "+", "y")
+
+    def test_parsing_function_parameters(self):
+        function_parameters_tests = [
+            ["fn() {};", []],
+            ["fn(x) {};", ["x"]],
+            ["fn(x, y, z) {};", ["x", "y", "z"]],
+            ["fn(x,y,z){};", ["x", "y", "z"]],
+        ]
+
+        for test in function_parameters_tests:
+            code = test[0]
+            lexer = Lexer(code)
+            parser = Parser(lexer)
+
+            program = parser.parse_program()
+            self._check_parser_errors(parser)
+
+            statement = program.statements[0]
+            self.assertIsInstance(statement, ExpressionStatement,
+                                  f"statement is not an instance of ExpressionStatement. got={type(statement)}")
+            function = statement.expression
+            self.assertIsInstance(function, FunctionLiteral,
+                                  f"function is not an instance of FunctionLiteral. got={type(function)}")
+            self.assertEqual(len(function.parameters), len(test[1]),
+                             f"length of function.parameters is worng. want {len(test[1])}, got={len(function.body.statements)}")
+
+            for i in range(len(test[1])):
+                self._test_literal_expression(
+                    function.parameters[i], test[1][i])
 
     def test_parsing_prefix_expressions(self):
         prefix_tests = [
@@ -174,7 +235,7 @@ return 993322;
             expression = program.statements[0].expression
             self._test_infix_expression(expression, test[1], test[2], test[3])
 
-    def test_if_expression(self):
+    def test_parsing_if_expression(self):
         code = "if (x < y) { x }"
 
         lexer = Lexer(code)
@@ -203,10 +264,11 @@ return 993322;
 
         self._test_identifier(consequence.statements[0].expression, "x")
 
-        self.assertEqual(expression.alternative, None,
-                         f"expression.alternatibe is not None. got={(expression.alternative)}")
+        if hasattr(expression, "alternative"):
+            self.fail(
+                f"expression.alternative is not None. got={(expression.alternative)}")
 
-    def test_if_else_expression(self):
+    def test_parsing_if_else_expression(self):
         code = "if (x < y) { x } else { y }"
 
         lexer = Lexer(code)
@@ -276,7 +338,7 @@ return 993322;
             self.assertEqual(
                 str(program), test[1], f"expected={test[1]} got={str(program)}")
 
-    def _test_let_statement(self, statement: Statement, name: str):
+    def _test_let_statement(self, statement: Statement, name: str) -> None:
         self.assertEqual(statement.token_literal(),
                          'let', f"statement.token_literal not 'let'. got={statement.token_literal()}")
         self.assertIsInstance(statement, LetStatement,
