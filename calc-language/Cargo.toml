@@ -8,5 +8,8 @@ edition = "2018"
 
 [dependencies]
 anyhow = "1.0"
+cfg-if = "0.1"
+inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "master", features = ["llvm11-0"] }
 pest = "2.1"
 pest_derive = "2.1"
+rustyline = "6.2"
