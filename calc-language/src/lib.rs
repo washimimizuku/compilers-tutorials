@@ -4,6 +4,8 @@ pub mod parser;
 
 pub use crate::ast::{Node, Operator};
 pub use crate::compiler::interpreter::Interpreter;
+pub use crate::compiler::jit::Jit;
+pub use crate::compiler::vm::{self, vm::VM};
 
 pub type Result<T> = anyhow::Result<T>;
 

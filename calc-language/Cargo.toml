@@ -13,3 +13,20 @@ inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "master", feat
 pest = "2.1"
 pest_derive = "2.1"
 rustyline = "6.2"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "main"
+path = "src/main.rs"
+test = false
+
+[[bin]]
+name = "repl"
+test = false
+
+[features]
+jit = []
+interpreter = []
+vm = []

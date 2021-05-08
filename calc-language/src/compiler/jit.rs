@@ -47,6 +47,7 @@ impl Compile for Jit {
         }
     }
 }
+
 struct RecursiveBuilder<'a> {
     i32_type: IntType<'a>,
     builder: &'a Builder<'a>,
@@ -89,5 +90,7 @@ mod tests {
         assert_eq!(Jit::from_source("2 + (2 - 1)").unwrap(), 3);
         assert_eq!(Jit::from_source("(2 + 3) - 1").unwrap(), 4);
         assert_eq!(Jit::from_source("1 + ((2 + 3) - (2 + 3))").unwrap(), 1);
+        // parser fails
+        // assert_eq!(Jit::from_source("2 + 3 - 1").unwrap(), 4);
     }
 }

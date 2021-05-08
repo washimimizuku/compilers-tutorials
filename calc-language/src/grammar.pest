@@ -1,8 +1,8 @@
-Program = _{ SOI ~ Expr ~ EOF}
+Program = _{ SOI ~ Expr ~ EOF }
 
-Expr = { UnaryExpr | BinaryExpr}
+Expr = { UnaryExpr | BinaryExpr }
 
-Term = _{ Int | "(" ~ Expr ~ ")" }
+Term = _{Int | "(" ~ Expr ~ ")" }
 
 UnaryExpr = { Operator ~ Term }
 
