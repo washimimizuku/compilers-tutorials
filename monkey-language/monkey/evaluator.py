@@ -80,6 +80,10 @@ def _eval_minus_prefix_operator_expression(right: Object) -> Object:
 def _eval_infix_expression(operator: str, left: Object, right: Object) -> Object:
     if left.object_type() == ObjectType.INTEGER and right.object_type() == ObjectType.INTEGER:
         return _eval_integer_infix_expression(operator, left, right)
+    elif operator == '==':
+        return _native_bool_to_boolean_object(left == right)
+    elif operator == '!=':
+        return _native_bool_to_boolean_object(left != right)
     else:
         return NULL
 
