@@ -93,5 +93,13 @@ def _eval_integer_infix_expression(operator: str, left: Object, right: Object) -
         return Integer(left.value * right.value)
     elif operator == '/':
         return Integer(left.value / right.value)
+    elif operator == '<':
+        return _native_bool_to_boolean_object(left.value < right.value)
+    elif operator == '>':
+        return _native_bool_to_boolean_object(left.value > right.value)
+    elif operator == '==':
+        return _native_bool_to_boolean_object(left.value == right.value)
+    elif operator == '!=':
+        return _native_bool_to_boolean_object(left.value != right.value)
     else:
         return NULL

@@ -34,6 +34,14 @@ class TestEvaluator(unittest.TestCase):
         eval_boolean_tests = (
             ("true", True),
             ("false", False),
+            ("1 < 2", True),
+            ("1 > 2", False),
+            ("1 < 1", False),
+            ("1 > 1", False),
+            ("1 == 1", True),
+            ("1 != 1", False),
+            ("1 == 2", False),
+            ("1 != 2", True),
         )
 
         for (code, expected) in eval_boolean_tests:
