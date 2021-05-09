@@ -5,6 +5,9 @@ from monkey.object import (
     Integer, Boolean
 )
 
+TRUE = Boolean(True)
+FALSE = Boolean(False)
+
 
 def evaluate(node: ast.Node) -> Object:
     # Statements
@@ -17,7 +20,7 @@ def evaluate(node: ast.Node) -> Object:
     elif type(node) is ast.IntegerLiteral:
         return Integer(node.value)
     elif type(node) is ast.BooleanLiteral:
-        return Boolean(node.value)
+        return _native_bool_to_boolean_object(node.value)
     else:
         return None
 
@@ -29,3 +32,10 @@ def _eval_statements(statements: typing.List[ast.Statement]) -> Object:
         result = evaluate(statement)
 
     return result
+
+
+def _native_bool_to_boolean_object(input: bool) -> Boolean:
+    if input:
+        return TRUE
+    else:
+        return FALSE
