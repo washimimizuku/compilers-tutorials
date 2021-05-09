@@ -2,11 +2,12 @@ import typing
 import monkey.ast as ast
 from monkey.object import (
     Object, ObjectType,
-    Integer, Boolean
+    Integer, Boolean, Null
 )
 
 TRUE = Boolean(True)
 FALSE = Boolean(False)
+NULL = Null()
 
 
 def evaluate(node: ast.Node) -> Object:
