@@ -1,6 +1,9 @@
 import typing
 import monkey.ast as ast
-from monkey.object import Object, ObjectType, Integer
+from monkey.object import (
+    Object, ObjectType,
+    Integer, Boolean
+)
 
 
 def evaluate(node: ast.Node) -> Object:
@@ -13,6 +16,8 @@ def evaluate(node: ast.Node) -> Object:
     # Expressions
     elif type(node) is ast.IntegerLiteral:
         return Integer(node.value)
+    elif type(node) is ast.BooleanLiteral:
+        return Boolean(node.value)
     else:
         return None
 
