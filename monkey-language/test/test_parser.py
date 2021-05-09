@@ -12,14 +12,14 @@ import unittest
 class TestParser(unittest.TestCase):
 
     def test_parsing_let_statements(self):
-        let_statements_tests = [
-            ["let x = 5;", "x", 5],
-            ["let y = true;", "y", True],
-            ["let foobar = y;", "foobar", "y"],
-        ]
+        let_statements_tests = (
+            ("let x = 5;", "x", 5),
+            ("let y = true;", "y", True),
+            ("let foobar = y;", "foobar", "y"),
+        )
 
-        for test in let_statements_tests:
-            lexer = Lexer(test[0])
+        for (code, expected_identifier, expected_value) in let_statements_tests:
+            lexer = Lexer(code)
             parser = Parser(lexer)
 
             program = parser.parse_program()
@@ -29,10 +29,10 @@ class TestParser(unittest.TestCase):
                              f"program.statements does not contain 1 statement. got={len(program.statements)}")
 
             statement = program.statements[0]
-            self._test_let_statement(statement, test[1])
+            self._test_let_statement(statement, expected_identifier)
 
             value = statement.value
-            self._test_literal_expression(value, test[2])
+            self._test_literal_expression(value, expected_value)
 
     def test_parsing_invalid_let_statements(self):
         let_statements_tests = [
@@ -50,14 +50,14 @@ class TestParser(unittest.TestCase):
                 self._check_parser_errors(parser)
 
     def test_parsing_return_statements(self):
-        return_statements_tests = [
-            ["return 5;", 5],
-            ["return 10;", 10],
-            ["return 993322;", 993322],
-        ]
+        return_statements_tests = (
+            ("return 5;", 5),
+            ("return 10;", 10),
+            ("return 993322;", 993322),
+        )
 
-        for test in return_statements_tests:
-            lexer = Lexer(test[0])
+        for (code, expected) in return_statements_tests:
+            lexer = Lexer(code)
             parser = Parser(lexer)
 
             program = parser.parse_program()
@@ -71,6 +71,8 @@ class TestParser(unittest.TestCase):
                                   f"statement not 'return'. got={statement}")
             self.assertEqual(statement.token_literal(),
                              'return', f"statement.token_literal not 'return'. got={statement.token_literal()}")
+            self.assertEqual(statement.return_value.value,
+                             expected, f"statement.return_value not {expected}. got={statement.return_value.value}")
 
     def test_parsing_identifier_expression(self):
         code = "foobar;"
@@ -105,13 +107,12 @@ class TestParser(unittest.TestCase):
         self._test_integer_literal(literal, 5)
 
     def test_parsing_boolean_literal_expression(self):
-        boolean_literal_tests = [
-            ["true;", True],
-            ["false;", False]
-        ]
+        boolean_literal_tests = (
+            ("true;", True),
+            ("false;", False)
+        )
 
-        for test in boolean_literal_tests:
-            code = test[0]
+        for (code, expected) in boolean_literal_tests:
             lexer = Lexer(code)
             parser = Parser(lexer)
 
@@ -124,7 +125,7 @@ class TestParser(unittest.TestCase):
                                   f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
 
             literal = program.statements[0].expression
-            self._test_boolean_literal(literal, test[1])
+            self._test_boolean_literal(literal, expected)
 
     def test_parsing_function_literal_expression(self):
         code = "fn(x, y) { x + y; }"
@@ -159,15 +160,14 @@ class TestParser(unittest.TestCase):
         self._test_infix_expression(body_statement.expression, "x", "+", "y")
 
     def test_parsing_function_parameters(self):
-        function_parameters_tests = [
-            ["fn() {};", []],
-            ["fn(x) {};", ["x"]],
-            ["fn(x, y, z) {};", ["x", "y", "z"]],
-            ["fn(x,y,z){};", ["x", "y", "z"]],
-        ]
+        function_parameters_tests = (
+            ("fn() {};", []),
+            ("fn(x) {};", ["x"]),
+            ("fn(x, y, z) {};", ["x", "y", "z"]),
+            ("fn(x,y,z){};", ["x", "y", "z"]),
+        )
 
-        for test in function_parameters_tests:
-            code = test[0]
+        for (code, expected) in function_parameters_tests:
             lexer = Lexer(code)
             parser = Parser(lexer)
 
@@ -180,12 +180,12 @@ class TestParser(unittest.TestCase):
             function = statement.expression
             self.assertIsInstance(function, FunctionLiteral,
                                   f"function is not an instance of FunctionLiteral. got={type(function)}")
-            self.assertEqual(len(function.parameters), len(test[1]),
-                             f"length of function.parameters is worng. want {len(test[1])}, got={len(function.body.statements)}")
+            self.assertEqual(len(function.parameters), len(expected),
+                             f"length of function.parameters is worng. want {len(expected)}, got={len(function.body.statements)}")
 
-            for i in range(len(test[1])):
+            for i in range(len(expected)):
                 self._test_literal_expression(
-                    function.parameters[i], test[1][i])
+                    function.parameters[i], expected[i])
 
     def test_parsing_call_expression(self) -> None:
         code = "add(1, 2 * 3, 4 + 5);"
@@ -217,15 +217,14 @@ class TestParser(unittest.TestCase):
         self._test_infix_expression(expression.arguments[2],  4, "+", 5)
 
     def test_parsing_prefix_expressions(self):
-        prefix_tests = [
-            ["!5", "!", 5],
-            ["-15", "-", 15],
-            ["!true;", "!", True],
-            ["!false;", "!", False],
-        ]
+        prefix_tests = (
+            ("!5", "!", 5),
+            ("-15", "-", 15),
+            ("!true;", "!", True),
+            ("!false;", "!", False),
+        )
 
-        for test in prefix_tests:
-            code = test[0]
+        for (code, expected_operator, expected_value) in prefix_tests:
             lexer = Lexer(code)
             parser = Parser(lexer)
 
@@ -238,25 +237,25 @@ class TestParser(unittest.TestCase):
                                   f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
 
             expression = program.statements[0].expression
-            self._test_prefix_expression(expression, test[1], test[2])
+            self._test_prefix_expression(
+                expression, expected_operator, expected_value)
 
     def test_parsing_infix_expressions(self):
-        infix_tests = [
-            ["5 + 5;", 5, "+", 5],
-            ["5 - 5;", 5, "-", 5],
-            ["5 * 5;", 5, "*", 5],
-            ["5 / 5;", 5, "/", 5],
-            ["5 > 5;", 5, ">", 5],
-            ["5 < 5;", 5, "<", 5],
-            ["5 == 5;", 5, "==", 5],
-            ["5 != 5;", 5, "!=", 5],
-            ["true == true", True, "==", True],
-            ["true != false", True, "!=", False],
-            ["false == false", False, "==", False],
-        ]
+        infix_tests = (
+            ("5 + 5;", 5, "+", 5),
+            ("5 - 5;", 5, "-", 5),
+            ("5 * 5;", 5, "*", 5),
+            ("5 / 5;", 5, "/", 5),
+            ("5 > 5;", 5, ">", 5),
+            ("5 < 5;", 5, "<", 5),
+            ("5 == 5;", 5, "==", 5),
+            ("5 != 5;", 5, "!=", 5),
+            ("true == true", True, "==", True),
+            ("true != false", True, "!=", False),
+            ("false == false", False, "==", False),
+        )
 
-        for test in infix_tests:
-            code = test[0]
+        for (code, expected_left_value, expected_operator, expected_right_value) in infix_tests:
             lexer = Lexer(code)
             parser = Parser(lexer)
 
@@ -269,7 +268,8 @@ class TestParser(unittest.TestCase):
                                   f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
 
             expression = program.statements[0].expression
-            self._test_infix_expression(expression, test[1], test[2], test[3])
+            self._test_infix_expression(
+                expression, expected_left_value, expected_operator, expected_right_value)
 
     def test_parsing_if_expression(self):
         code = "if (x < y) { x }"
@@ -338,38 +338,37 @@ class TestParser(unittest.TestCase):
                               f"alternative.Statements[0] is not an instance of ExpressionStatement. got={type(alternative.statements[0])}")
 
     def test_operator_precedence_parsing(self):
-        infix_tests = [
-            ["-a * b", "((-a) * b)"],
-            ["!-a", "(!(-a))"],
-            ["a + b + c", "((a + b) + c)"],
-            ["a + b - c", "((a + b) - c)"],
-            ["a * b * c", "((a * b) * c)"],
-            ["a * b / c", "((a * b) / c)"],
-            ["a + b / c", "(a + (b / c))"],
-            ["a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)"],
-            ["3 + 4; -5 * 5", "(3 + 4)((-5) * 5)"],
-            ["5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))"],
-            ["5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"],
-            ["3 + 4 * 5 == 3 * 1 + 4 * 5",
-                "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"],
-            ["true", "true"],
-            ["false", "false"],
-            ["3 > 5 == false", "((3 > 5) == false)"],
-            ["3 < 5 == true", "((3 < 5) == true)"],
-            ["1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4)"],
-            ["(5 + 5) * 2", "((5 + 5) * 2)"],
-            ["2 / (5 + 5)", "(2 / (5 + 5))"],
-            ["-(5 + 5)", "(-(5 + 5))"],
-            ["!(true == true)", "(!(true == true))"],
-            ["a + add(b * c) + d", "((a + add((b * c))) + d)"],
-            ["add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
-             "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"],
-            ["add(a + b + c * d / f + g)",
-             "add((((a + b) + ((c * d) / f)) + g))"],
-        ]
+        infix_tests = (
+            ("-a * b", "((-a) * b)"),
+            ("!-a", "(!(-a))"),
+            ("a + b + c", "((a + b) + c)"),
+            ("a + b - c", "((a + b) - c)"),
+            ("a * b * c", "((a * b) * c)"),
+            ("a * b / c", "((a * b) / c)"),
+            ("a + b / c", "(a + (b / c))"),
+            ("a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)"),
+            ("3 + 4; -5 * 5", "(3 + 4)((-5) * 5)"),
+            ("5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))"),
+            ("5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"),
+            ("3 + 4 * 5 == 3 * 1 + 4 * 5",
+                "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
+            ("true", "true"),
+            ("false", "false"),
+            ("3 > 5 == false", "((3 > 5) == false)"),
+            ("3 < 5 == true", "((3 < 5) == true)"),
+            ("1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4)"),
+            ("(5 + 5) * 2", "((5 + 5) * 2)"),
+            ("2 / (5 + 5)", "(2 / (5 + 5))"),
+            ("-(5 + 5)", "(-(5 + 5))"),
+            ("!(true == true)", "(!(true == true))"),
+            ("a + add(b * c) + d", "((a + add((b * c))) + d)"),
+            ("add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
+             "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"),
+            ("add(a + b + c * d / f + g)",
+             "add((((a + b) + ((c * d) / f)) + g))"),
+        )
 
-        for test in infix_tests:
-            code = test[0]
+        for (code, expected) in infix_tests:
             lexer = Lexer(code)
             parser = Parser(lexer)
 
@@ -377,7 +376,7 @@ class TestParser(unittest.TestCase):
             self._check_parser_errors(parser)
 
             self.assertEqual(
-                str(program), test[1], f"expected={test[1]} got={str(program)}")
+                str(program), expected, f"expected={expected} got={str(program)}")
 
     def _test_let_statement(self, statement: Statement, name: str) -> None:
         self.assertEqual(statement.token_literal(),
