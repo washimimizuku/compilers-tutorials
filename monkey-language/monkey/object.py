@@ -4,6 +4,7 @@ import enum
 class ObjectType(enum.Enum):
     INTEGER = "INTEGER"
     BOOLEAN = "BOOLEAN"
+    NULL = "NULL"
 
 
 class Object:
@@ -34,3 +35,14 @@ class Boolean:
 
     def inspect(self) -> str:
         return str(self.value).lower()
+
+
+class Null:
+    def __init__(self) -> None:
+        self.value = None
+
+    def object_type(self) -> ObjectType:
+        return ObjectType.NULL
+
+    def inspect(self) -> str:
+        return str(self.value)
