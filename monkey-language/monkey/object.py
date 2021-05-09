@@ -3,6 +3,7 @@ import enum
 
 class ObjectType(enum.Enum):
     INTEGER = "INTEGER"
+    BOOLEAN = "BOOLEAN"
 
 
 class Object:
@@ -15,10 +16,21 @@ class Object:
 
 class Integer:
     def __init__(self, value: int) -> None:
-        self.value = value
+        self.value: int = value
 
     def object_type(self) -> ObjectType:
         return ObjectType.INTEGER
 
     def inspect(self) -> str:
         return str(self.value)
+
+
+class Boolean:
+    def __init__(self, value: bool) -> None:
+        self.value: bool = value
+
+    def object_type(self) -> ObjectType:
+        return ObjectType.BOOLEAN
+
+    def inspect(self) -> str:
+        return str(self.value).lower()
