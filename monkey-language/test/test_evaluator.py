@@ -27,6 +27,20 @@ class TestEvaluator(unittest.TestCase):
             evaluated = self._test_eval(code)
             self._test_boolean_object(evaluated, expected)
 
+    def test_bang_operator(self):
+        eval_boolean_tests = (
+            ("!true", False),
+            ("!false", True),
+            ("!5", False),
+            ("!!true", True),
+            ("!!false", False),
+            ("!!5", True),
+        )
+
+        for (code, expected) in eval_boolean_tests:
+            evaluated = self._test_eval(code)
+            self._test_boolean_object(evaluated, expected)
+
     def _test_eval(self, code):
         lexer = Lexer(code)
         parser = Parser(lexer)
