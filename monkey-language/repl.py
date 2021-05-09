@@ -1,3 +1,4 @@
+from monkey.evaluator import evaluate
 from monkey.lexer import Lexer
 from monkey.parser import Parser
 from monkey.token import Token, TokenType
@@ -24,12 +25,14 @@ def start() -> None:
 
         lex = Lexer(line)
         pars = Parser(lex)
-        program = pars.parse_program()
 
+        program = pars.parse_program()
         if len(pars.errors) != 0:
             print_parser_errors(pars.errors)
-        else:
-            print(f"{str(program)}")
+
+        evaluated = evaluate(program)
+        if evaluated != None:
+            print(f"{str(evaluated.inspect())}")
 
 
 def print_parser_errors(errors: str):
