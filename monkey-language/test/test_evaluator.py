@@ -11,6 +11,8 @@ class TestEvaluator(unittest.TestCase):
         eval_integer_tests = (
             ("5", 5),
             ("10", 10),
+            ("-5", -5),
+            ("-10", -10),
         )
 
         for (code, expected) in eval_integer_tests:

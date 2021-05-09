@@ -48,6 +48,8 @@ def _native_bool_to_boolean_object(input: bool) -> Boolean:
 def _eval_prefix_expression(operator: str, right: Object) -> Object:
     if operator == "!":
         return _eval_bang_operator_expression(right)
+    elif operator == "-":
+        return _eval_minus_prefix_operator_expression(right)
     else:
         return NULL
 
@@ -61,3 +63,11 @@ def _eval_bang_operator_expression(right: Object) -> Object:
         return TRUE
     else:
         return FALSE
+
+
+def _eval_minus_prefix_operator_expression(right: Object) -> Object:
+    if right.object_type() != ObjectType.INTEGER:
+        return NULL
+
+    value = right.value
+    return Integer(-value)
