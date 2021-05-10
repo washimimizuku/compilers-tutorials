@@ -203,6 +203,17 @@ class TestEvaluator(unittest.TestCase):
             evaluated = self._test_eval(code)
             self._test_integer_object(evaluated, expected)
 
+    def test_closures(self):
+        code = '''
+            let newAdder = fn(x) {
+                fn(y) { x + y };
+            };
+            let addTwo = newAdder(2);
+            addTwo(2);
+        '''
+        evaluated = self._test_eval(code)
+        self._test_integer_object(evaluated, 4)
+
     def _test_eval(self, code):
         lexer = Lexer(code)
         parser = Parser(lexer)
