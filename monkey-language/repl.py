@@ -1,3 +1,4 @@
+from monkey.environment import Environment
 from monkey.evaluator import evaluate
 from monkey.lexer import Lexer
 from monkey.parser import Parser
@@ -20,6 +21,8 @@ MONKEY_FACE = '''
 
 
 def start() -> None:
+    env = Environment()
+
     while True:
         line = input(PROMPT)
 
@@ -30,7 +33,7 @@ def start() -> None:
         if len(pars.errors) != 0:
             print_parser_errors(pars.errors)
 
-        evaluated = evaluate(program)
+        evaluated = evaluate(program, env)
         if evaluated != None:
             print(f"{str(evaluated.inspect())}")
 

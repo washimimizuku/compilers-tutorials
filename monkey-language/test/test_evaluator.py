@@ -1,3 +1,4 @@
+from monkey.environment import Environment
 from monkey.evaluator import evaluate, NULL
 from monkey.lexer import Lexer
 from monkey.object import Object, Integer, Boolean, Error
@@ -112,6 +113,18 @@ class TestEvaluator(unittest.TestCase):
             evaluated = self._test_eval(code)
             self._test_integer_object(evaluated, expected)
 
+    def test_let_statement(self):
+        eval_let_statement_tests = (
+            ("let a = 5; a;", 5),
+            ("let a = 5 * 5; a;", 25),
+            ("let a = 5; let b = a; b;", 5),
+            ("let a = 5; let b = a; let c = a + b + 5; c;", 15),
+        )
+
+        for (code, expected) in eval_let_statement_tests:
+            evaluated = self._test_eval(code)
+            self._test_integer_object(evaluated, expected)
+
     def test_error_handling(self):
         error_handling_tests = (
             (
@@ -149,6 +162,10 @@ class TestEvaluator(unittest.TestCase):
                 ''',
                 "unknown operator: ObjectType.BOOLEAN + ObjectType.BOOLEAN"
             ),
+            (
+                "foobar",
+                "identifier not found: foobar",
+            ),
         )
 
         for (code, expected) in error_handling_tests:
@@ -162,8 +179,9 @@ class TestEvaluator(unittest.TestCase):
         lexer = Lexer(code)
         parser = Parser(lexer)
         program = parser.parse_program()
+        env = Environment()
 
-        return evaluate(program)
+        return evaluate(program, env)
 
     def _test_integer_object(self, evaluated, expected):
         self.assertIsInstance(evaluated, Integer,
