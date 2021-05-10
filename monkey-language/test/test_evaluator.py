@@ -1,7 +1,7 @@
 from monkey.environment import Environment
 from monkey.evaluator import evaluate, NULL
 from monkey.lexer import Lexer
-from monkey.object import Object, Integer, Boolean, Error
+from monkey.object import Object, Integer, Boolean, Error, Function
 from monkey.parser import Parser
 import unittest
 
@@ -174,6 +174,34 @@ class TestEvaluator(unittest.TestCase):
                                   f"no error object returned. got={type(evaluated)}")
             self.assertEqual(evaluated.message, expected,
                              f"wrong error message. got={evaluated.message}, expected={expected}")
+
+    def test_function_object(self):
+        code = "fn(x) { x + 2; };"
+        evaluated = self._test_eval(code)
+        self.assertIsInstance(evaluated, Function,
+                              f"object is not a function. got={type(evaluated)}")
+        self.assertEqual(len(evaluated.parameters), 1,
+                         f"function has wrong parameters. Parameters={len(evaluated.parameters)}")
+        self.assertEqual(str(evaluated.parameters[0]), 'x',
+                         f"parameter is not 'x'. got=={evaluated.parameters[0]}")
+
+        expected_body = "(x + 2)"
+        self.assertEqual(str(evaluated.body), expected_body,
+                         f"body is not {expected_body}. got=={evaluated.body}")
+
+    def test_function_application(self):
+        function_application_tests = (
+            ("let identity = fn(x) { x; }; identity(5);", 5),
+            ("let identity = fn(x) { return x; }; identity(5);", 5),
+            ("let double = fn(x) { x * 2; }; double(5);", 10),
+            ("let add = fn(x, y) { x + y; }; add(5, 5);", 10),
+            ("let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));", 20),
+            ("fn(x) { x; }(5)", 5),
+        )
+
+        for (code, expected) in function_application_tests:
+            evaluated = self._test_eval(code)
+            self._test_integer_object(evaluated, expected)
 
     def _test_eval(self, code):
         lexer = Lexer(code)

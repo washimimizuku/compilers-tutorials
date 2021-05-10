@@ -1,9 +1,9 @@
 import typing
 import monkey.ast as ast
-from monkey.environment import Environment
+from monkey.environment import Environment, new_enclosed_environment
 from monkey.object import (
     Object, ObjectType,
-    Integer, Boolean, Null, ReturnValue, Error,
+    Integer, Boolean, Null, ReturnValue, Error, Function
 )
 
 TRUE = Boolean(True)
@@ -56,8 +56,44 @@ def evaluate(node: ast.Node, env: Environment) -> Object:
         return _eval_infix_expression(node.operator, left, right)
     elif type(node) is ast.IfExpression:
         return _eval_if_expression(node, env)
+    elif type(node) is ast.FunctionLiteral:
+        parameters = node.parameters
+        body = node.body
+        return Function(parameters, body, env)
+    elif type(node) is ast.CallExpression:
+        function = evaluate(node.function, env)
+        if _is_error(function):
+            return function
+        arguments = _eval_expressions(node.arguments, env)
+        if len(arguments) == 1 and _is_error(arguments[0]):
+            return arguments[0]
+        return _apply_function(function, arguments)
     else:
         return None
+
+
+def _apply_function(function: Object, arguments: typing.List[Object]) -> Object:
+    if not isinstance(function, Function):
+        return Error(f"not a function: {function.object_type()}")
+
+    extended_env = _extended_function_env(function, arguments)
+    evaluated = evaluate(function.body, extended_env)
+    return _unwrap_return_value(evaluated)
+
+
+def _extended_function_env(function: Function, arguments: typing.List[Object]) -> Environment:
+    env = new_enclosed_environment(function.env)
+
+    for index in range(len(function.parameters)):
+        env.set_variable(function.parameters[index].value, arguments[index])
+
+    return env
+
+
+def _unwrap_return_value(obj: Object) -> Object:
+    if isinstance(obj, ReturnValue):
+        return obj.value
+    return obj
 
 
 def _eval_program(program: ast.Program, env: Environment) -> Object:
@@ -94,6 +130,22 @@ def _eval_statements(statements: typing.List[ast.Statement], env: Environment) -
 
         if isinstance(result, ReturnValue):
             return result
+
+    return result
+
+
+def _eval_expressions(expressions: typing.List[ast.Expression], env: Environment) -> Object:
+    result: typing.List[Object] = []
+
+    for expression in expressions:
+        evaluated = evaluate(expression, env)
+        if evaluated is None:
+            return evaluated
+
+        if _is_error(evaluated):
+            return evaluated
+
+        result.append(evaluated)
 
     return result
 

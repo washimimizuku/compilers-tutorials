@@ -1,4 +1,7 @@
 import enum
+import typing
+
+from monkey.ast import Identifier, Expression, BlockStatement
 
 
 class ObjectType(enum.Enum):
@@ -7,6 +10,7 @@ class ObjectType(enum.Enum):
     NULL = "NULL"
     RETURN_VALUE = "RETURN_VALUE"
     ERROR = "ERROR"
+    FUNCTION = "FUNCTION"
 
 
 class Object:
@@ -70,3 +74,25 @@ class Error:
 
     def inspect(self) -> str:
         return f"ERROR: {self.message}"
+
+
+class Function(Expression):
+    def __init__(self, parameters, body, env) -> None:
+        self.parameters: typing.List[Identifier] = parameters
+        self.body: BlockStatement = body
+        self.env = env
+
+    def object_type(self) -> ObjectType:
+        return ObjectType.FUNCTION
+
+    def inspect(self) -> str:
+        parameters: typing.List[str] = []
+        for parameter in self.parameters:
+            parameters.append(str(parameter))
+
+        message = f"fn({', '.join(parameters)})"
+        message += "{\n"
+        message += str(self.body)
+        message += "\n}"
+
+        return message
