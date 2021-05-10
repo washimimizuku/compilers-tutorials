@@ -89,6 +89,29 @@ class TestEvaluator(unittest.TestCase):
             evaluated = self._test_eval(code)
             self._test_boolean_object(evaluated, expected)
 
+    def test_return_statement(self):
+        eval_return_statement_tests = (
+            ("return 10;", 10),
+            ("return 10; 9;", 10),
+            ("return 2 * 5; 9;", 10),
+            ("9; return 2 * 5; 9;", 10),
+            (
+                '''
+                if (10 > 1) {
+                    if (10 > 1) {
+                        return 10;
+                    }
+                    return 1;
+                }
+                ''',
+                10
+            ),
+        )
+
+        for (code, expected) in eval_return_statement_tests:
+            evaluated = self._test_eval(code)
+            self._test_integer_object(evaluated, expected)
+
     def _test_eval(self, code):
         lexer = Lexer(code)
         parser = Parser(lexer)

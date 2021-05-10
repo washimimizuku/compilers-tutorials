@@ -5,6 +5,7 @@ class ObjectType(enum.Enum):
     INTEGER = "INTEGER"
     BOOLEAN = "BOOLEAN"
     NULL = "NULL"
+    RETURN_VALUE = "RETURN_VALUE"
 
 
 class Object:
@@ -46,3 +47,14 @@ class Null:
 
     def inspect(self) -> str:
         return str(self.value)
+
+
+class ReturnValue:
+    def __init__(self, value: Object) -> None:
+        self.value: Object = value
+
+    def object_type(self) -> ObjectType:
+        return ObjectType.RETURN_VALUE
+
+    def inspect(self) -> str:
+        return self.value.inspect()

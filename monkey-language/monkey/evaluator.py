@@ -2,7 +2,7 @@ import typing
 import monkey.ast as ast
 from monkey.object import (
     Object, ObjectType,
-    Integer, Boolean, Null
+    Integer, Boolean, Null, ReturnValue,
 )
 
 TRUE = Boolean(True)
@@ -13,11 +13,14 @@ NULL = Null()
 def evaluate(node: ast.Node) -> Object:
     # Statements
     if type(node) is ast.Program:
-        return _eval_statements(node.statements)
+        return _eval_program(node)
     elif type(node) is ast.ExpressionStatement:
         return evaluate(node.expression)
     elif type(node) is ast.BlockStatement:
-        return _eval_statements(node.statements)
+        return _eval_block_statement(node)
+    elif type(node) is ast.ReturnStatement:
+        value = evaluate(node.return_value)
+        return ReturnValue(value)
 
     # Expressions
     elif type(node) is ast.IntegerLiteral:
@@ -37,11 +40,38 @@ def evaluate(node: ast.Node) -> Object:
         return None
 
 
+def _eval_program(program: ast.Program) -> Object:
+    result: Object
+
+    for statement in program.statements:
+        result = evaluate(statement)
+
+        if isinstance(result, ReturnValue):
+            return result.value
+
+    return result
+
+
+def _eval_block_statement(block: ast.BlockStatement) -> Object:
+    result: Object
+
+    for statement in block.statements:
+        result = evaluate(statement)
+
+        if result.object_type() == ObjectType.RETURN_VALUE:
+            return result
+
+    return result
+
+
 def _eval_statements(statements: typing.List[ast.Statement]) -> Object:
     result = None
 
     for statement in statements:
         result = evaluate(statement)
+
+        if isinstance(result, ReturnValue):
+            return result
 
     return result
 
