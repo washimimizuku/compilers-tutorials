@@ -6,6 +6,7 @@ class ObjectType(enum.Enum):
     BOOLEAN = "BOOLEAN"
     NULL = "NULL"
     RETURN_VALUE = "RETURN_VALUE"
+    ERROR = "ERROR"
 
 
 class Object:
@@ -58,3 +59,14 @@ class ReturnValue:
 
     def inspect(self) -> str:
         return self.value.inspect()
+
+
+class Error:
+    def __init__(self, message: str) -> None:
+        self.message: str = message
+
+    def object_type(self) -> ObjectType:
+        return ObjectType.ERROR
+
+    def inspect(self) -> str:
+        return f"ERROR: {self.message}"

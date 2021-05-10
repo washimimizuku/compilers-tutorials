@@ -1,6 +1,6 @@
 from monkey.evaluator import evaluate, NULL
 from monkey.lexer import Lexer
-from monkey.object import Object, Integer, Boolean
+from monkey.object import Object, Integer, Boolean, Error
 from monkey.parser import Parser
 import unittest
 
@@ -111,6 +111,52 @@ class TestEvaluator(unittest.TestCase):
         for (code, expected) in eval_return_statement_tests:
             evaluated = self._test_eval(code)
             self._test_integer_object(evaluated, expected)
+
+    def test_error_handling(self):
+        error_handling_tests = (
+            (
+                "5 + true;",
+                "type mismatch: ObjectType.INTEGER + ObjectType.BOOLEAN",
+            ),
+            (
+                "5 + true; 5;",
+                "type mismatch: ObjectType.INTEGER + ObjectType.BOOLEAN",
+            ),
+            (
+                "-true",
+                "unknown operator: -ObjectType.BOOLEAN",
+            ),
+            (
+                "true + false;",
+                "unknown operator: ObjectType.BOOLEAN + ObjectType.BOOLEAN",
+            ),
+            (
+                "5; true + false; 5",
+                "unknown operator: ObjectType.BOOLEAN + ObjectType.BOOLEAN",
+            ),
+            (
+                "if (10 > 1) { true + false; }",
+                "unknown operator: ObjectType.BOOLEAN + ObjectType.BOOLEAN",
+            ),
+            (
+                '''
+                if (10 > 1) {
+                    if (10 > 1) {
+                        return true + false;
+                    }
+                    return 1;
+                }
+                ''',
+                "unknown operator: ObjectType.BOOLEAN + ObjectType.BOOLEAN"
+            ),
+        )
+
+        for (code, expected) in error_handling_tests:
+            evaluated = self._test_eval(code)
+            self.assertIsInstance(evaluated, Error,
+                                  f"no error object returned. got={type(evaluated)}")
+            self.assertEqual(evaluated.message, expected,
+                             f"wrong error message. got={evaluated.message}, expected={expected}")
 
     def _test_eval(self, code):
         lexer = Lexer(code)
