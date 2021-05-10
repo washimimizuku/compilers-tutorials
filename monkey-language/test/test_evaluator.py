@@ -1,4 +1,4 @@
-from monkey.evaluator import evaluate
+from monkey.evaluator import evaluate, NULL
 from monkey.lexer import Lexer
 from monkey.object import Object, Integer, Boolean
 from monkey.parser import Parser
@@ -57,6 +57,24 @@ class TestEvaluator(unittest.TestCase):
             evaluated = self._test_eval(code)
             self._test_boolean_object(evaluated, expected)
 
+    def test_if_else_expressions(self):
+        eval_if_else_expressions = (
+            ("if (true) { 10 }", 10),
+            ("if (false) { 10 }", None),
+            ("if (1) { 10 }", 10),
+            ("if (1 < 2) { 10 }", 10),
+            ("if (1 > 2) { 10 }", None),
+            ("if (1 > 2) { 10 } else { 20 }", 20),
+            ("if (1 < 2) { 10 } else { 20 }", 10),
+        )
+
+        for (code, expected) in eval_if_else_expressions:
+            evaluated = self._test_eval(code)
+            if isinstance(expected, int):
+                self._test_integer_object(evaluated, expected)
+            else:
+                self._test_null_object(evaluated)
+
     def test_bang_operator(self):
         eval_boolean_tests = (
             ("!true", False),
@@ -89,3 +107,7 @@ class TestEvaluator(unittest.TestCase):
                               f"object is not Boolean. got={type(evaluated)}")
         self.assertEqual(evaluated.value, expected,
                          f"object has wrong value. got={evaluated.value}, want={expected}")
+
+    def _test_null_object(self, evaluated):
+        self.assertEqual(
+            evaluated, NULL, f"object is not NULL. got={evaluated.value}")
