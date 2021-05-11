@@ -7,6 +7,7 @@ from monkey.ast import Identifier, Expression, BlockStatement
 class ObjectType(enum.Enum):
     INTEGER = "INTEGER"
     BOOLEAN = "BOOLEAN"
+    STRING = "STRING"
     NULL = "NULL"
     RETURN_VALUE = "RETURN_VALUE"
     ERROR = "ERROR"
@@ -41,6 +42,17 @@ class Boolean:
 
     def inspect(self) -> str:
         return str(self.value).lower()
+
+
+class String:
+    def __init__(self, value: str) -> None:
+        self.value: str = value
+
+    def object_type(self) -> ObjectType:
+        return ObjectType.STRING
+
+    def inspect(self) -> str:
+        return self.value
 
 
 class Null:

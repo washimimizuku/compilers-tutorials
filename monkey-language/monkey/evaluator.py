@@ -3,7 +3,8 @@ import monkey.ast as ast
 from monkey.environment import Environment, new_enclosed_environment
 from monkey.object import (
     Object, ObjectType,
-    Integer, Boolean, Null, ReturnValue, Error, Function
+    Integer, Boolean, String, Null,
+    ReturnValue, Error, Function
 )
 
 TRUE = Boolean(True)
@@ -39,6 +40,8 @@ def evaluate(node: ast.Node, env: Environment) -> Object:
         return Integer(node.value)
     elif type(node) is ast.BooleanLiteral:
         return _native_bool_to_boolean_object(node.value)
+    elif type(node) is ast.StringLiteral:
+        return String(node.value)
     elif type(node) is ast.PrefixExpression:
         right = evaluate(node.right, env)
         if _is_error(right):
@@ -195,6 +198,8 @@ def _eval_minus_prefix_operator_expression(right: Object) -> Object:
 def _eval_infix_expression(operator: str, left: Object, right: Object) -> Object:
     if left.object_type() == ObjectType.INTEGER and right.object_type() == ObjectType.INTEGER:
         return _eval_integer_infix_expression(operator, left, right)
+    if left.object_type() == ObjectType.STRING and right.object_type() == ObjectType.STRING:
+        return _eval_string_infix_expression(operator, left, right)
     elif operator == '==':
         return _native_bool_to_boolean_object(left == right)
     elif operator == '!=':
@@ -222,6 +227,13 @@ def _eval_integer_infix_expression(operator: str, left: Object, right: Object) -
         return _native_bool_to_boolean_object(left.value == right.value)
     elif operator == '!=':
         return _native_bool_to_boolean_object(left.value != right.value)
+    else:
+        return Error(f"unknown operator: {left.object_type()} {operator} {right.object_type()}")
+
+
+def _eval_string_infix_expression(operator: str, left: Object, right: Object) -> Object:
+    if operator == '+':
+        return String(left.value + right.value)
     else:
         return Error(f"unknown operator: {left.object_type()} {operator} {right.object_type()}")
 

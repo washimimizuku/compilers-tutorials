@@ -1,7 +1,7 @@
 from monkey.environment import Environment
 from monkey.evaluator import evaluate, NULL
 from monkey.lexer import Lexer
-from monkey.object import Object, Integer, Boolean, Error, Function
+from monkey.object import Object, Integer, Boolean, String, Error, Function
 from monkey.parser import Parser
 import unittest
 
@@ -166,6 +166,10 @@ class TestEvaluator(unittest.TestCase):
                 "foobar",
                 "identifier not found: foobar",
             ),
+            (
+                '"Hello" - "World"',
+                "unknown operator: ObjectType.STRING - ObjectType.STRING",
+            ),
         )
 
         for (code, expected) in error_handling_tests:
@@ -213,6 +217,26 @@ class TestEvaluator(unittest.TestCase):
         '''
         evaluated = self._test_eval(code)
         self._test_integer_object(evaluated, 4)
+
+    def test_eval_string_literal(self):
+        code = '"Hello World!"'
+        evaluated = self._test_eval(code)
+
+        expected = 'Hello World!'
+        self.assertIsInstance(evaluated, String,
+                              f"object is not String. got={type(evaluated)}")
+        self.assertEqual(evaluated.value, expected,
+                         f"object has wrong value. got={evaluated.value}, want={expected}")
+
+    def test_eval_string_contatenation(self):
+        code = '"Hello" + " " + "World!"'
+        evaluated = self._test_eval(code)
+
+        expected = 'Hello World!'
+        self.assertIsInstance(evaluated, String,
+                              f"object is not String. got={type(evaluated)}")
+        self.assertEqual(evaluated.value, expected,
+                         f"object has wrong value. got={evaluated.value}, want={expected}")
 
     def _test_eval(self, code):
         lexer = Lexer(code)
