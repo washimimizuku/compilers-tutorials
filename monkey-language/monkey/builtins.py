@@ -1,7 +1,7 @@
 from monkey.object import Builtin, Integer, String, Error
 
 
-def len_function(args):
+def len_builtin(args):
     if len(args) != 1:
         return Error(f"wrong number of arguments. got={len(args)}, want=1")
 
@@ -13,5 +13,5 @@ def len_function(args):
 
 
 BUILTINS = {
-    "len": Builtin(len_function),
+    "len": Builtin(len_builtin),
 }
