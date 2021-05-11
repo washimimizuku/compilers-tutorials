@@ -1,7 +1,7 @@
 from monkey.ast import (
     Expression, PrefixExpression, InfixExpression, IfExpression, CallExpression,
     Identifier,
-    BooleanLiteral, IntegerLiteral, FunctionLiteral,
+    BooleanLiteral, IntegerLiteral, StringLiteral, FunctionLiteral,
     Statement, LetStatement, ReturnStatement, ExpressionStatement,
 )
 from monkey.lexer import Lexer
@@ -126,6 +126,22 @@ class TestParser(unittest.TestCase):
 
             literal = program.statements[0].expression
             self._test_boolean_literal(literal, expected)
+
+    def test_parsing_string_literal_expression(self):
+        code = '"hello world";'
+        lexer = Lexer(code)
+        parser = Parser(lexer)
+
+        program = parser.parse_program()
+        self._check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 1,
+                         f"program.statements does not contain 1 statement. got={len(program.statements)}")
+        self.assertIsInstance(program.statements[0], ExpressionStatement,
+                              f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
+
+        literal = program.statements[0].expression
+        self._test_string_literal(literal, 'hello world')
 
     def test_parsing_function_literal_expression(self):
         code = "fn(x, y) { x + y; }"
@@ -436,6 +452,14 @@ class TestParser(unittest.TestCase):
                          f"boolean_literal.value not {value}. got={boolean_literal.value}")
         self.assertEqual(boolean_literal.token_literal(), str(value).lower(),
                          f"boolean_literal not {value}. got={boolean_literal.token_literal()}")
+
+    def _test_string_literal(self, string_literal: StringLiteral, value: str) -> None:
+        self.assertIsInstance(string_literal, StringLiteral,
+                              f"string_literal not StringLiteral. got={type(string_literal)}")
+        self.assertEqual(string_literal.value, value,
+                         f"string_literal.value not {value}. got={string_literal.value}")
+        self.assertEqual(string_literal.token_literal(), value,
+                         f"string_literal not {value}. got={string_literal.token_literal()}")
 
     def _test_identifier(self, expression: Identifier, value: str) -> None:
         self.assertIsInstance(expression, Identifier,

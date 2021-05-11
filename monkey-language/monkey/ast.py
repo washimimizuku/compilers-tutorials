@@ -167,6 +167,22 @@ class BooleanLiteral(Expression):
         return self.token_literal()
 
 
+class StringLiteral(Expression):
+    def __init__(self, token: Token, value: str) -> None:
+        self.token: Token = token
+        self.value: str = value
+
+    def expression_node(self) -> None:
+        # Just for debugging
+        pass
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+    def __str__(self) -> str:
+        return self.token_literal()
+
+
 class FunctionLiteral(Expression):
     def __init__(self, token: Token) -> None:
         self.token: Token = token

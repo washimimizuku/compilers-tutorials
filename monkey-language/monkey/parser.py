@@ -54,6 +54,7 @@ class Parser():
         self.register_prefix(TokenType.LPAREN, self.parse_grouped_expression)
         self.register_prefix(TokenType.IF, self.parse_if_expression)
         self.register_prefix(TokenType.FUNCTION, self.parse_function_literal)
+        self.register_prefix(TokenType.STRING, self.parse_string_literal)
 
         # Register infix functions
         self.register_infix(TokenType.PLUS, self.parse_infix_expression)
@@ -188,6 +189,9 @@ class Parser():
         literal = ast.BooleanLiteral(
             self.current_token, self.current_token_is(TokenType.TRUE))
         return literal
+
+    def parse_string_literal(self) -> ast.Expression:
+        return ast.StringLiteral(self.current_token, self.current_token.literal)
 
     def parse_function_literal(self) -> ast.Expression:
         literal = ast.FunctionLiteral(self.current_token)
