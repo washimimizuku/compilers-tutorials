@@ -67,6 +67,8 @@ class Lexer():
             tok = Token(TokenType.RBRACE, self.ch)
         elif self.ch == "\0":
             tok = Token(TokenType.EOF, "")
+        elif self.ch == '"':
+            tok = Token(TokenType.STRING, self.read_string())
         else:
             if self.is_letter(self.ch):
                 literal = self.read_identifer()
@@ -120,3 +122,12 @@ class Lexer():
             return 0
         else:
             return self.code[self.read_position]
+
+    def read_string(self) -> str:
+        position = self.position + 1
+
+        self.read_char()
+        while self.ch not in ['"', 0]:
+            self.read_char()
+
+        return self.code[position:self.position]
