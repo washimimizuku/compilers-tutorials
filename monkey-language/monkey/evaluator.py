@@ -1,10 +1,11 @@
 import typing
 import monkey.ast as ast
+from monkey.builtins import BUILTINS
 from monkey.environment import Environment, new_enclosed_environment
 from monkey.object import (
     Object, ObjectType,
     Integer, Boolean, String, Null,
-    ReturnValue, Error, Function
+    ReturnValue, Error, Function, Builtin
 )
 
 TRUE = Boolean(True)
@@ -76,12 +77,16 @@ def evaluate(node: ast.Node, env: Environment) -> Object:
 
 
 def _apply_function(function: Object, arguments: typing.List[Object]) -> Object:
-    if not isinstance(function, Function):
-        return Error(f"not a function: {function.object_type()}")
+    if isinstance(function, Function):
+        extended_env = _extended_function_env(function, arguments)
+        evaluated = evaluate(function.body, extended_env)
+        return _unwrap_return_value(evaluated)
 
-    extended_env = _extended_function_env(function, arguments)
-    evaluated = evaluate(function.body, extended_env)
-    return _unwrap_return_value(evaluated)
+    elif isinstance(function, Builtin):
+        return function.function(arguments)
+
+    else:
+        return Error(f"not a function: {function.object_type()}")
 
 
 def _extended_function_env(function: Function, arguments: typing.List[Object]) -> Environment:
@@ -162,9 +167,14 @@ def _native_bool_to_boolean_object(input: bool) -> Boolean:
 
 def _eval_identifier(node: ast.Identifier, env: Environment) -> Object:
     value = env.get_variable(node.value)
-    if not value:
-        return Error(f"identifier not found: {node.value}")
-    return value
+    if value is not None:
+        return value
+
+    value = BUILTINS.get(node.value, None)
+    if value is not None:
+        return value
+
+    return Error(f"identifier not found: {node.value}")
 
 
 def _eval_prefix_expression(operator: str, right: Object) -> Object:

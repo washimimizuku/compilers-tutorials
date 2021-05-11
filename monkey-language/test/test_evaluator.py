@@ -238,6 +238,26 @@ class TestEvaluator(unittest.TestCase):
         self.assertEqual(evaluated.value, expected,
                          f"object has wrong value. got={evaluated.value}, want={expected}")
 
+    def test_builtin_functions(self):
+        builtin_functions_tests = (
+            ('len("")', 0),
+            ('len("four")', 4),
+            ('len("hello world")', 11),
+            ('len(1)', "argument to 'len' not supported, got=ObjectType.INTEGER"),
+            ('len("one", "two")', "wrong number of arguments. got=2, want=1"),
+        )
+
+        for (code, expected) in builtin_functions_tests:
+            evaluated = self._test_eval(code)
+
+            if type(expected) is int:
+                self._test_integer_object(evaluated, expected)
+            elif type(expected) is str:
+                self.assertIsInstance(evaluated, Error,
+                                      f"object is not Error. got={type(evaluated)}")
+                self.assertEqual(evaluated.message, expected,
+                                 f"wrong error message. got={evaluated}, expected={expected}")
+
     def _test_eval(self, code):
         lexer = Lexer(code)
         parser = Parser(lexer)

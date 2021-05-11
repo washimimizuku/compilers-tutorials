@@ -12,6 +12,7 @@ class ObjectType(enum.Enum):
     RETURN_VALUE = "RETURN_VALUE"
     ERROR = "ERROR"
     FUNCTION = "FUNCTION"
+    BUILTIN = "BUILTIN"
 
 
 class Object:
@@ -108,3 +109,14 @@ class Function(Expression):
         message += "\n}"
 
         return message
+
+
+class Builtin(Object):
+    def __init__(self, function) -> None:
+        self.function = function
+
+    def object_type(self) -> ObjectType:
+        return ObjectType.BUILTIN
+
+    def inspect(self) -> str:
+        return "builtin function"
