@@ -287,6 +287,32 @@ class TestEvaluator(unittest.TestCase):
                 self.assertEqual(evaluated.message, expected.message,
                                  f"wrong error message. got={evaluated}, expected={expected}")
 
+    def test_builtin_function_last(self):
+        builtin_functions_tests = (
+            ('last([])', NULL),
+            ('last([1, 2, 3])', 3),
+            ('last([1, true, "hello"])', 'hello'),
+            ('last("foobar")', Error(
+                "argument to 'last' must be ObjectType.ARRAY, got ObjectType.STRING")),
+        )
+
+        for (code, expected) in builtin_functions_tests:
+            evaluated = self._test_eval(code)
+
+            if type(expected) is int:
+                self._test_integer_object(evaluated, expected)
+            elif type(expected) is str:
+                self.assertEqual(evaluated.value, expected,
+                                 f"wrong string value. got={evaluated}, expected={expected}")
+            elif expected.object_type() == ObjectType.NULL:
+                self.assertEqual(evaluated.object_type(), expected.object_type(),
+                                 f"wrong null value. got={evaluated.object_type()}, expected={expected.object_type()}")
+            else:
+                self.assertIsInstance(evaluated, Error,
+                                      f"object is not Error. got={type(evaluated)}")
+                self.assertEqual(evaluated.message, expected.message,
+                                 f"wrong error message. got={evaluated}, expected={expected}")
+
     def test_array_literals(self):
         code = "[1, 2 * 2, 3 + 3]"
         evaluated = self._test_eval(code)

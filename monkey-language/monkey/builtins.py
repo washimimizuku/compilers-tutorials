@@ -31,7 +31,23 @@ def first_builtin(args):
     return Null()
 
 
+def last_builtin(args):
+    if len(args) != 1:
+        return Error(f"wrong number of arguments. got={len(args)}, want=1")
+
+    array = args[0]
+    print(array.object_type())
+    if array.object_type() != ObjectType.ARRAY:
+        return Error(f"argument to 'last' must be ObjectType.ARRAY, got {array.object_type()}")
+
+    if len(array.elements) > 0:
+        return array.elements[-1]
+
+    return Null()
+
+
 BUILTINS = {
     "len": Builtin(len_builtin),
     "first": Builtin(first_builtin),
+    "last": Builtin(last_builtin),
 }
