@@ -13,6 +13,7 @@ class ObjectType(enum.Enum):
     ERROR = "ERROR"
     FUNCTION = "FUNCTION"
     BUILTIN = "BUILTIN"
+    ARRAY = "ARRAY"
 
 
 class Object:
@@ -120,3 +121,18 @@ class Builtin(Object):
 
     def inspect(self) -> str:
         return "builtin function"
+
+
+class Array(Object):
+    def __init__(self, elements) -> None:
+        self.elements = elements
+
+    def object_type(self) -> ObjectType:
+        return ObjectType.ARRAY
+
+    def inspect(self) -> str:
+        elements = []
+        for element in self.elements:
+            elements.append(element.inspect())
+
+        return f"[{', '.join(elements)}]"

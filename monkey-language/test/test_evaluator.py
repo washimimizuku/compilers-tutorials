@@ -1,7 +1,7 @@
 from monkey.environment import Environment
 from monkey.evaluator import evaluate, NULL
 from monkey.lexer import Lexer
-from monkey.object import Object, Integer, Boolean, String, Error, Function
+from monkey.object import Object, Integer, Boolean, String, Error, Function, Array
 from monkey.parser import Parser
 import unittest
 
@@ -257,6 +257,19 @@ class TestEvaluator(unittest.TestCase):
                                       f"object is not Error. got={type(evaluated)}")
                 self.assertEqual(evaluated.message, expected,
                                  f"wrong error message. got={evaluated}, expected={expected}")
+
+    def test_array_literals(self):
+        code = "[1, 2 * 2, 3 + 3]"
+        evaluated = self._test_eval(code)
+
+        self.assertIsInstance(evaluated, Array,
+                              f"object is not Array. got={type(evaluated)}")
+        self.assertEqual(len(evaluated.elements), 3,
+                         f"array has wrong num of elements. got={len(evaluated.elements)}, expected=3")
+
+        self._test_integer_object(evaluated.elements[0], 1)
+        self._test_integer_object(evaluated.elements[1], 4)
+        self._test_integer_object(evaluated.elements[2], 6)
 
     def _test_eval(self, code):
         lexer = Lexer(code)

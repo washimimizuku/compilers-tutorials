@@ -4,7 +4,7 @@ from monkey.builtins import BUILTINS
 from monkey.environment import Environment, new_enclosed_environment
 from monkey.object import (
     Object, ObjectType,
-    Integer, Boolean, String, Null,
+    Integer, Boolean, String, Null, Array,
     ReturnValue, Error, Function, Builtin
 )
 
@@ -72,6 +72,11 @@ def evaluate(node: ast.Node, env: Environment) -> Object:
         if len(arguments) == 1 and _is_error(arguments[0]):
             return arguments[0]
         return _apply_function(function, arguments)
+    elif type(node) is ast.ArrayLiteral:
+        elements = _eval_expressions(node.elements, env)
+        if len(elements) == 1 and _is_error(elements[0]):
+            return elements[0]
+        return Array(elements)
     else:
         return None
 
