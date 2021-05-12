@@ -65,6 +65,10 @@ class Lexer():
             tok = Token(TokenType.LBRACE, self.ch)
         elif self.ch == '}':
             tok = Token(TokenType.RBRACE, self.ch)
+        elif self.ch == '[':
+            tok = Token(TokenType.LBRACKET, self.ch)
+        elif self.ch == ']':
+            tok = Token(TokenType.RBRACKET, self.ch)
         elif self.ch == "\0":
             tok = Token(TokenType.EOF, "")
         elif self.ch == '"':

@@ -211,3 +211,32 @@ class TestLexer(unittest.TestCase):
             self.assertEqual(expected_literal,
                              token.literal,
                              f"expected tokem literal wrong. expected={expected_literal}, got={token.literal}")
+
+    def test_arrays(self):
+        code = '''
+            [1, 2];
+            [];
+        '''
+        lexer = Lexer(code)
+
+        expected_values = (
+            (TokenType.LBRACKET.name, "["),
+            (TokenType.INT.name, "1"),
+            (TokenType.COMMA.name, ","),
+            (TokenType.INT.name, "2"),
+            (TokenType.RBRACKET.name, "]"),
+            (TokenType.SEMICOLON.name, ";"),
+            (TokenType.LBRACKET.name, "["),
+            (TokenType.RBRACKET.name, "]"),
+            (TokenType.SEMICOLON.name, ";"),
+            (TokenType.EOF.name, ""),
+        )
+
+        for (expected_token_type, expected_literal) in expected_values:
+            token = lexer.next_token()
+            self.assertEqual(expected_token_type,
+                             token.token_type.name,
+                             f"expected token type wrong. expected={expected_token_type}, got={token.token_type.name}")
+            self.assertEqual(expected_literal,
+                             token.literal,
+                             f"expected tokem literal wrong. expected={expected_literal}, got={token.literal}")
