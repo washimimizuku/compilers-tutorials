@@ -245,6 +245,9 @@ class TestEvaluator(unittest.TestCase):
             ('len("hello world")', 11),
             ('len(1)', "argument to 'len' not supported, got=ObjectType.INTEGER"),
             ('len("one", "two")', "wrong number of arguments. got=2, want=1"),
+            ('len([])', 0),
+            ('len([1, 2, 3])', 3),
+            ('len([1, "hello", true])', 3),
         )
 
         for (code, expected) in builtin_functions_tests:
