@@ -55,6 +55,7 @@ class Parser():
         self.register_prefix(TokenType.IF, self.parse_if_expression)
         self.register_prefix(TokenType.FUNCTION, self.parse_function_literal)
         self.register_prefix(TokenType.STRING, self.parse_string_literal)
+        self.register_prefix(TokenType.LBRACKET, self.parse_array_literal)
 
         # Register infix functions
         self.register_infix(TokenType.PLUS, self.parse_infix_expression)
@@ -193,6 +194,11 @@ class Parser():
     def parse_string_literal(self) -> ast.Expression:
         return ast.StringLiteral(self.current_token, self.current_token.literal)
 
+    def parse_array_literal(self) -> ast.Expression:
+        array = ast.ArrayLiteral(self.current_token)
+        array.elements = self.parse_expression_list(TokenType.RBRACKET)
+        return array
+
     def parse_function_literal(self) -> ast.Expression:
         literal = ast.FunctionLiteral(self.current_token)
 
@@ -293,28 +299,28 @@ class Parser():
 
     def parse_call_expression(self, function: ast.Expression) -> ast.Expression:
         expression = ast.CallExpression(self.current_token, function)
-        expression.arguments = self.parse_call_arguments()
+        expression.arguments = self.parse_expression_list(TokenType.RPAREN)
         return expression
 
-    def parse_call_arguments(self) -> typing.List[ast.Expression]:
-        arguments: typing.List[ast.Expression] = []
+    def parse_expression_list(self, end: TokenType) -> typing.List[ast.Expression]:
+        expression_list: typing.List[ast.Expression] = []
 
-        if self.peek_token_is(TokenType.RPAREN):
+        if self.peek_token_is(end):
             self.next_token()
-            return arguments
+            return expression_list
 
         self.next_token()
-        arguments.append(self.parse_expression(Precedence.LOWEST))
+        expression_list.append(self.parse_expression(Precedence.LOWEST))
 
         while self.peek_token_is(TokenType.COMMA):
             self.next_token()
             self.next_token()
-            arguments.append(self.parse_expression(Precedence.LOWEST))
+            expression_list.append(self.parse_expression(Precedence.LOWEST))
 
-        if not self.expect_peek(TokenType.RPAREN):
+        if not self.expect_peek(end):
             return None
 
-        return arguments
+        return expression_list
 
     def current_token_is(self, token_type: TokenType) -> bool:
         return self.current_token.token_type == token_type

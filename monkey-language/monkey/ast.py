@@ -198,10 +198,30 @@ class FunctionLiteral(Expression):
 
     def __str__(self) -> str:
         parameters = []
-        for parameter in parameters:
+        for parameter in self.parameters:
             parameters.append(str(parameter))
 
         return f"{self.token_literal()} ( {', '.join(parameters)} ) {str(self.body)}"
+
+
+class ArrayLiteral(Expression):
+    def __init__(self, token: Token) -> None:
+        self.token: Token = token  # the '[' token
+        self.elements: typing.List[Identifier] = []
+
+    def expression_node(self) -> None:
+        # Just for debugging
+        pass
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+    def __str__(self) -> str:
+        elements = []
+        for element in self.elements:
+            elements.append(str(element))
+
+        return f"[{', '.join(elements)}]"
 
 
 class PrefixExpression(Expression):

@@ -1,7 +1,7 @@
 from monkey.ast import (
     Expression, PrefixExpression, InfixExpression, IfExpression, CallExpression,
     Identifier,
-    BooleanLiteral, IntegerLiteral, StringLiteral, FunctionLiteral,
+    BooleanLiteral, IntegerLiteral, StringLiteral, FunctionLiteral, ArrayLiteral,
     Statement, LetStatement, ReturnStatement, ExpressionStatement,
 )
 from monkey.lexer import Lexer
@@ -142,6 +142,28 @@ class TestParser(unittest.TestCase):
 
         literal = program.statements[0].expression
         self._test_string_literal(literal, 'hello world')
+
+    def test_parsing_array_literal_expression(self):
+        code = "[1, 2 * 2, 3 + 3]"
+        lexer = Lexer(code)
+        parser = Parser(lexer)
+
+        program = parser.parse_program()
+        self._check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 1,
+                         f"program.statements does not contain 1 statement. got={len(program.statements)}")
+        self.assertIsInstance(program.statements[0], ExpressionStatement,
+                              f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
+
+        expression = program.statements[0].expression
+        self.assertIsInstance(expression, ArrayLiteral,
+                              f"expression is not an instance of ArrayLiteral. got={type(expression)}")
+        self.assertEqual(len(expression.elements), 3,
+                         f"expression.elements does not contain 3 elements. got={len(expression.elements)}")
+        self._test_integer_literal(expression.elements[0], 1)
+        self._test_infix_expression(expression.elements[1], 2, '*', 2)
+        self._test_infix_expression(expression.elements[2], 3, '+', 3)
 
     def test_parsing_function_literal_expression(self):
         code = "fn(x, y) { x + y; }"
