@@ -1,7 +1,7 @@
 from monkey.environment import Environment
 from monkey.evaluator import evaluate, NULL
 from monkey.lexer import Lexer
-from monkey.object import Object, Integer, Boolean, String, Error, Function, Array
+from monkey.object import ObjectType, Object, Integer, Boolean, String, Error, Function, Array
 from monkey.parser import Parser
 import unittest
 
@@ -238,7 +238,7 @@ class TestEvaluator(unittest.TestCase):
         self.assertEqual(evaluated.value, expected,
                          f"object has wrong value. got={evaluated.value}, want={expected}")
 
-    def test_builtin_functions(self):
+    def test_builtin_function_len(self):
         builtin_functions_tests = (
             ('len("")', 0),
             ('len("four")', 4),
@@ -259,6 +259,32 @@ class TestEvaluator(unittest.TestCase):
                 self.assertIsInstance(evaluated, Error,
                                       f"object is not Error. got={type(evaluated)}")
                 self.assertEqual(evaluated.message, expected,
+                                 f"wrong error message. got={evaluated}, expected={expected}")
+
+    def test_builtin_function_first(self):
+        builtin_functions_tests = (
+            ('first([])', NULL),
+            ('first([1, 2, 3])', 1),
+            ('first(["hello", 1, true])', 'hello'),
+            ('first("foobar")', Error(
+                "argument to 'first' must be ObjectType.ARRAY, got ObjectType.STRING")),
+        )
+
+        for (code, expected) in builtin_functions_tests:
+            evaluated = self._test_eval(code)
+
+            if type(expected) is int:
+                self._test_integer_object(evaluated, expected)
+            elif type(expected) is str:
+                self.assertEqual(evaluated.value, expected,
+                                 f"wrong string value. got={evaluated}, expected={expected}")
+            elif expected.object_type() == ObjectType.NULL:
+                self.assertEqual(evaluated.object_type(), expected.object_type(),
+                                 f"wrong null value. got={evaluated.object_type()}, expected={expected.object_type()}")
+            else:
+                self.assertIsInstance(evaluated, Error,
+                                      f"object is not Error. got={type(evaluated)}")
+                self.assertEqual(evaluated.message, expected.message,
                                  f"wrong error message. got={evaluated}, expected={expected}")
 
     def test_array_literals(self):
