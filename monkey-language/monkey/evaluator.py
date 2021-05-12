@@ -77,6 +77,14 @@ def evaluate(node: ast.Node, env: Environment) -> Object:
         if len(elements) == 1 and _is_error(elements[0]):
             return elements[0]
         return Array(elements)
+    elif type(node) is ast.IndexExpression:
+        left = evaluate(node.left, env)
+        if _is_error(left):
+            return left
+        index = evaluate(node.index, env)
+        if _is_error(index):
+            return index
+        return _eval_index_expression(left, index)
     else:
         return None
 
@@ -264,6 +272,24 @@ def _eval_if_expression(if_expression: ast.IfExpression, env: Environment) -> Ob
         return evaluate(if_expression.alternative, env)
     else:
         return NULL
+
+
+def _eval_index_expression(left: Object, index: Object) -> Object:
+    if left.object_type() == ObjectType.ARRAY and index.object_type() == ObjectType.INTEGER:
+        return _eval_array_index_expression(left, index)
+    else:
+        return Error(f"index operator not supported: {left.object_type()}")
+
+
+def _eval_array_index_expression(array: Object, index: Object) -> Object:
+    array_object = array
+    idx = index.value
+    maximum = len(array_object.elements) - 1
+
+    if idx < 0 or idx > maximum:
+        return NULL
+
+    return array_object.elements[idx]
 
 
 def _is_truthy(obj: Object) -> bool:

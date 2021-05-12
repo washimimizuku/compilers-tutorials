@@ -271,6 +271,28 @@ class TestEvaluator(unittest.TestCase):
         self._test_integer_object(evaluated.elements[1], 4)
         self._test_integer_object(evaluated.elements[2], 6)
 
+    def test_array_index_expressions(self):
+        builtin_functions_tests = (
+            ("[1, 2, 3][0]", 1),
+            ("[1, 2, 3][1]", 2),
+            ("[1, 2, 3][2]", 3),
+            ("let i = 0; [1][i];", 1),
+            ("[1, 2, 3][1 + 1];", 3),
+            ("let myArray = [1, 2, 3]; myArray[2];", 3),
+            ("let myArray = [1, 2, 3]; myArray[0] + myArray[1] + myArray[2];", 6),
+            ("let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i]", 2),
+            ("[1, 2, 3][3]", None),
+            ("[1, 2, 3][-1]", None),
+        )
+
+        for (code, expected) in builtin_functions_tests:
+            evaluated = self._test_eval(code)
+
+            if type(expected) is int:
+                self._test_integer_object(evaluated, expected)
+            else:
+                self._test_null_object(evaluated)
+
     def _test_eval(self, code):
         lexer = Lexer(code)
         parser = Parser(lexer)
