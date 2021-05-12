@@ -14,6 +14,7 @@ class Precedence(enum.Enum):
     PRODUCT = 5      # *
     PREFIX = 6       # -x or !x
     CALL = 7         # myFunction(x)
+    INDEX = 8        # array[index]
 
 
 PRECEDENCES = {
@@ -26,6 +27,7 @@ PRECEDENCES = {
     TokenType.SLASH: Precedence.PRODUCT,
     TokenType.ASTERISK: Precedence.PRODUCT,
     TokenType.LPAREN: Precedence.CALL,
+    TokenType.LBRACKET: Precedence.INDEX,
 }
 
 
@@ -67,6 +69,7 @@ class Parser():
         self.register_infix(TokenType.LT, self.parse_infix_expression)
         self.register_infix(TokenType.GT, self.parse_infix_expression)
         self.register_infix(TokenType.LPAREN, self.parse_call_expression)
+        self.register_infix(TokenType.LBRACKET, self.parse_index_expression)
 
     def next_token(self) -> None:
         self.current_token = self.peek_token
@@ -300,6 +303,17 @@ class Parser():
     def parse_call_expression(self, function: ast.Expression) -> ast.Expression:
         expression = ast.CallExpression(self.current_token, function)
         expression.arguments = self.parse_expression_list(TokenType.RPAREN)
+        return expression
+
+    def parse_index_expression(self, left: ast.Expression) -> ast.Expression:
+        expression = ast.IndexExpression(self.current_token, left)
+
+        self.next_token()
+        expression.index = self.parse_expression(Precedence.LOWEST)
+
+        if not self.expect_peek(TokenType.RBRACKET):
+            return None
+
         return expression
 
     def parse_expression_list(self, end: TokenType) -> typing.List[ast.Expression]:

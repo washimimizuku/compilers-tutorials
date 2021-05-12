@@ -299,3 +299,20 @@ class CallExpression(Expression):
             arguments.append(str(argument))
 
         return f"{str(self.function)}({', '.join(arguments)})"
+
+
+class IndexExpression(Expression):
+    def __init__(self, token: Token, left: Expression) -> None:
+        self.token: Token = token
+        self.left: Expression = left
+        self.index: Expression
+
+    def expression_node(self) -> None:
+        # Just for debugging
+        pass
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+    def __str__(self) -> str:
+        return f"({str(self.left)}[{str(self.index)}])"

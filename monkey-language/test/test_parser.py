@@ -1,5 +1,5 @@
 from monkey.ast import (
-    Expression, PrefixExpression, InfixExpression, IfExpression, CallExpression,
+    Expression, PrefixExpression, InfixExpression, IfExpression, CallExpression, IndexExpression,
     Identifier,
     BooleanLiteral, IntegerLiteral, StringLiteral, FunctionLiteral, ArrayLiteral,
     Statement, LetStatement, ReturnStatement, ExpressionStatement,
@@ -404,6 +404,10 @@ class TestParser(unittest.TestCase):
              "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"),
             ("add(a + b + c * d / f + g)",
              "add((((a + b) + ((c * d) / f)) + g))"),
+            ("a * [1, 2, 3, 4][b * c] * d",
+             "((a * ([1, 2, 3, 4][(b * c)])) * d)"),
+            ("add(a * b[2], b[1], 2 * [1, 2][1])",
+             "add((a * (b[2])), (b[1]), (2 * ([1, 2][1])))"),
         )
 
         for (code, expected) in infix_tests:
@@ -415,6 +419,25 @@ class TestParser(unittest.TestCase):
 
             self.assertEqual(
                 str(program), expected, f"expected={expected} got={str(program)}")
+
+    def test_parsing_index_expressions(self):
+        code = "myArray[1 + 1]"
+        lexer = Lexer(code)
+        parser = Parser(lexer)
+
+        program = parser.parse_program()
+        self._check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 1,
+                         f"program.statements does not contain 1 statement. got={len(program.statements)}")
+        self.assertIsInstance(program.statements[0], ExpressionStatement,
+                              f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
+
+        expression = program.statements[0].expression
+        self.assertIsInstance(expression, IndexExpression,
+                              f"expression is not an instance of IndexExpression. got={type(expression)}")
+        self._test_identifier(expression.left, "myArray")
+        self._test_infix_expression(expression.index, 1, "+", 1)
 
     def _test_let_statement(self, statement: Statement, name: str) -> None:
         self.assertEqual(statement.token_literal(),
