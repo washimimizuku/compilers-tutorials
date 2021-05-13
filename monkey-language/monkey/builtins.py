@@ -59,9 +59,26 @@ def rest_builtin(args):
     return Null()
 
 
+def push_builtin(args):
+    if len(args) != 2:
+        return Error(f"wrong number of arguments. got={len(args)}, want=2")
+
+    array = args[0]
+    new_element = args[1]
+
+    if array.object_type() != ObjectType.ARRAY:
+        return Error(f"argument to 'push' must be ObjectType.ARRAY, got {array.object_type()}")
+
+    new_array = array.elements[:]
+    new_array.append(new_element)
+
+    return new_array
+
+
 BUILTINS = {
     "len": Builtin(len_builtin),
     "first": Builtin(first_builtin),
     "last": Builtin(last_builtin),
     "rest": Builtin(rest_builtin),
+    "push": Builtin(push_builtin),
 }

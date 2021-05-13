@@ -346,6 +346,37 @@ class TestEvaluator(unittest.TestCase):
                 self.assertEqual(evaluated.message, expected.message,
                                  f"wrong error message. got={evaluated}, expected={expected}")
 
+    def test_builtin_function_push(self):
+        builtin_functions_tests = (
+            ('push([], 1)', [1]),
+            ('push([1, 2, 3], 4)', [1, 2, 3, 4]),
+            ('push([1, 2], true)', [1, 2, True]),
+            ('push([1, 2], "hello")', [1, 2, 'hello']),
+            ('push("hello", 2)', Error(
+                "argument to 'push' must be ObjectType.ARRAY, got ObjectType.STRING")),
+        )
+
+        for (code, expected) in builtin_functions_tests:
+            evaluated = self._test_eval(code)
+
+            if type(expected) is list:
+                for index in range(len(evaluated)):
+
+                    if type(expected) is int:
+                        self._test_integer_object(
+                            evaluated[index], expected[index])
+                    elif type(expected) is bool:
+                        self._test_boolean_object(
+                            evaluated[index], expected[index])
+                    elif type(expected) is str:
+                        self.assertEqual(evaluated[index].value, expected[index],
+                                         f"wrong string value. got={evaluated[index]}, expected={expected[index]}")
+            else:
+                self.assertIsInstance(evaluated, Error,
+                                      f"object is not Error. got={type(evaluated)}")
+                self.assertEqual(evaluated.message, expected.message,
+                                 f"wrong error message. got={evaluated}, expected={expected}")
+
     def test_array_literals(self):
         code = "[1, 2 * 2, 3 + 3]"
         evaluated = self._test_eval(code)
