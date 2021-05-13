@@ -224,6 +224,26 @@ class ArrayLiteral(Expression):
         return f"[{', '.join(elements)}]"
 
 
+class HashLiteral(Expression):
+    def __init__(self, token: Token) -> None:
+        self.token: Token = token  # the '{' token
+        self.pairs: typing.List[Identifier] = {}
+
+    def expression_node(self) -> None:
+        # Just for debugging
+        pass
+
+    def token_literal(self) -> str:
+        return self.token.literal
+
+    def __str__(self) -> str:
+        pairs = []
+        for key, value in self.pairs.items():
+            pairs.append(f"{str(key)}:{str(value)}")
+
+        return "{" + f"{', '.join(pairs)}" + "}"
+
+
 class PrefixExpression(Expression):
     def __init__(self, token: Token, operator: str) -> None:
         self.token: Token = token

@@ -1,7 +1,7 @@
 from monkey.ast import (
     Expression, PrefixExpression, InfixExpression, IfExpression, CallExpression, IndexExpression,
     Identifier,
-    BooleanLiteral, IntegerLiteral, StringLiteral, FunctionLiteral, ArrayLiteral,
+    BooleanLiteral, IntegerLiteral, StringLiteral, FunctionLiteral, ArrayLiteral, HashLiteral,
     Statement, LetStatement, ReturnStatement, ExpressionStatement,
 )
 from monkey.lexer import Lexer
@@ -164,6 +164,142 @@ class TestParser(unittest.TestCase):
         self._test_integer_literal(expression.elements[0], 1)
         self._test_infix_expression(expression.elements[1], 2, '*', 2)
         self._test_infix_expression(expression.elements[2], 3, '+', 3)
+
+    def test_parsing_hash_literal_string_keys(self):
+        code = '{"one": 1, "two": 2, "three": 3}'
+        lexer = Lexer(code)
+        parser = Parser(lexer)
+
+        program = parser.parse_program()
+        self._check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 1,
+                         f"program.statements does not contain 1 statement. got={len(program.statements)}")
+        self.assertIsInstance(program.statements[0], ExpressionStatement,
+                              f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
+
+        hash_expression = program.statements[0].expression
+        self.assertIsInstance(hash_expression, HashLiteral,
+                              f"expression is not an instance of HashLiteral. got={type(hash_expression)}")
+        self.assertEqual(len(hash_expression.pairs), 3,
+                         f"hash.pairs does not contain 3 pairs. got={len(hash_expression.pairs)}")
+
+        expected = {
+            "one": 1,
+            "two": 2,
+            "three": 3,
+        }
+        for key, value in hash_expression.pairs.items():
+            self.assertIsInstance(key, StringLiteral,
+                                  f"key is not an instance of StringLiteral. got={type(key)}")
+            self._test_integer_literal(value, expected[str(key)])
+
+    def test_parsing_hash_literal_integer_keys(self):
+        code = '{1: 1, 2: 2, 3: 3}'
+        lexer = Lexer(code)
+        parser = Parser(lexer)
+
+        program = parser.parse_program()
+        self._check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 1,
+                         f"program.statements does not contain 1 statement. got={len(program.statements)}")
+        self.assertIsInstance(program.statements[0], ExpressionStatement,
+                              f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
+
+        hash_expression = program.statements[0].expression
+        self.assertIsInstance(hash_expression, HashLiteral,
+                              f"expression is not an instance of HashLiteral. got={type(hash_expression)}")
+        self.assertEqual(len(hash_expression.pairs), 3,
+                         f"hash.pairs does not contain 3 pairs. got={len(hash_expression.pairs)}")
+
+        expected = {
+            1: 1,
+            2: 2,
+            3: 3,
+        }
+        for key, value in hash_expression.pairs.items():
+            self.assertIsInstance(key, IntegerLiteral,
+                                  f"key is not an instance of IntegerLiteral. got={type(key)}")
+            self._test_integer_literal(value, expected[key.value])
+
+    def test_parsing_hash_literal_boolean_keys(self):
+        code = '{true: 1, false: 2}'
+        lexer = Lexer(code)
+        parser = Parser(lexer)
+
+        program = parser.parse_program()
+        self._check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 1,
+                         f"program.statements does not contain 1 statement. got={len(program.statements)}")
+        self.assertIsInstance(program.statements[0], ExpressionStatement,
+                              f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
+
+        hash_expression = program.statements[0].expression
+        self.assertIsInstance(hash_expression, HashLiteral,
+                              f"expression is not an instance of HashLiteral. got={type(hash_expression)}")
+        self.assertEqual(len(hash_expression.pairs), 2,
+                         f"hash.pairs does not contain 2 pairs. got={len(hash_expression.pairs)}")
+
+        expected = {
+            True: 1,
+            False: 2,
+        }
+        for key, value in hash_expression.pairs.items():
+            self.assertIsInstance(key, BooleanLiteral,
+                                  f"key is not an instance of BooleanLiteral. got={type(key)}")
+            self._test_integer_literal(value, expected[key.value])
+
+    def test_parsing_empty_hash_literal(self):
+        code = '{}'
+        lexer = Lexer(code)
+        parser = Parser(lexer)
+
+        program = parser.parse_program()
+        self._check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 1,
+                         f"program.statements does not contain 1 statement. got={len(program.statements)}")
+        self.assertIsInstance(program.statements[0], ExpressionStatement,
+                              f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
+
+        hash_expression = program.statements[0].expression
+        self.assertIsInstance(hash_expression, HashLiteral,
+                              f"expression is not an instance of HashLiteral. got={type(hash_expression)}")
+        self.assertEqual(len(hash_expression.pairs), 0,
+                         f"hash.pairs has wrong length. got={len(hash_expression.pairs)}")
+
+    def test_parsing_hash_literals_with_expressions(self):
+        code = '{"one": 0 + 1, "two": 10 - 8, "three": 15 / 5}'
+        lexer = Lexer(code)
+        parser = Parser(lexer)
+
+        program = parser.parse_program()
+        self._check_parser_errors(parser)
+
+        self.assertEqual(len(program.statements), 1,
+                         f"program.statements does not contain 1 statement. got={len(program.statements)}")
+        self.assertIsInstance(program.statements[0], ExpressionStatement,
+                              f"program.Statements[0] is not an instance of ExpressionStatement. got={type(program.statements[0])}")
+
+        hash_expression = program.statements[0].expression
+        self.assertIsInstance(hash_expression, HashLiteral,
+                              f"expression is not an instance of HashLiteral. got={type(hash_expression)}")
+        self.assertEqual(len(hash_expression.pairs), 3,
+                         f"hash.pairs does not contain 3 pairs. got={len(hash_expression.pairs)}")
+
+        tests = {
+            "one": lambda exp: self._test_infix_expression(exp, 0, "+", 1),
+            "two": lambda exp: self._test_infix_expression(exp, 10, "-", 8),
+            "three": lambda exp: self._test_infix_expression(exp, 15, "/", 5),
+        }
+
+        for key, value in hash_expression.pairs.items():
+            self.assertIsInstance(key, StringLiteral,
+                                  f"key is not an instance of StringLiteral. got={type(key)}")
+            test_function = tests[str(key)]
+            test_function(value)
 
     def test_parsing_function_literal_expression(self):
         code = "fn(x, y) { x + y; }"

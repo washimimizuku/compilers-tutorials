@@ -58,6 +58,7 @@ class Parser():
         self.register_prefix(TokenType.FUNCTION, self.parse_function_literal)
         self.register_prefix(TokenType.STRING, self.parse_string_literal)
         self.register_prefix(TokenType.LBRACKET, self.parse_array_literal)
+        self.register_prefix(TokenType.LBRACE, self.parse_hash_literal)
 
         # Register infix functions
         self.register_infix(TokenType.PLUS, self.parse_infix_expression)
@@ -201,6 +202,30 @@ class Parser():
         array = ast.ArrayLiteral(self.current_token)
         array.elements = self.parse_expression_list(TokenType.RBRACKET)
         return array
+
+    def parse_hash_literal(self) -> ast.Expression:
+        _hash = ast.HashLiteral(self.current_token)
+        _hash.pairs = {}
+
+        while not self.peek_token_is(TokenType.RBRACE):
+            self.next_token()
+            key = self.parse_expression(Precedence.LOWEST)
+
+            if not self.expect_peek(TokenType.COLON):
+                return None
+
+            self.next_token()
+            value = self.parse_expression(Precedence.LOWEST)
+
+            _hash.pairs[key] = value
+
+            if not self.peek_token_is(TokenType.RBRACE) and not self.expect_peek(TokenType.COMMA):
+                return None
+
+        if not self.expect_peek(TokenType.RBRACE):
+            return None
+
+        return _hash
 
     def parse_function_literal(self) -> ast.Expression:
         literal = ast.FunctionLiteral(self.current_token)
