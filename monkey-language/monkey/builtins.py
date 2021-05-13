@@ -75,10 +75,18 @@ def push_builtin(args):
     return new_array
 
 
+def puts_builtin(args):
+    for arg in args:
+        print(arg.inspect())
+
+    return Null()
+
+
 BUILTINS = {
     "len": Builtin(len_builtin),
     "first": Builtin(first_builtin),
     "last": Builtin(last_builtin),
     "rest": Builtin(rest_builtin),
     "push": Builtin(push_builtin),
+    "puts": Builtin(puts_builtin),
 }
