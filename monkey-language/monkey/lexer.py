@@ -55,6 +55,8 @@ class Lexer():
             tok = Token(TokenType.GT, self.ch)
         elif self.ch == ';':
             tok = Token(TokenType.SEMICOLON, self.ch)
+        elif self.ch == ':':
+            tok = Token(TokenType.COLON, self.ch)
         elif self.ch == ',':
             tok = Token(TokenType.COMMA, self.ch)
         elif self.ch == '(':

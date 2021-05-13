@@ -26,6 +26,7 @@ class TokenType(enum.Enum):
     # Delimeters
     COMMA = ","
     SEMICOLON = ";"
+    COLON = ":"
 
     LPAREN = "("
     RPAREN = ")"
