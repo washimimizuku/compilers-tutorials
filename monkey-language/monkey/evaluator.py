@@ -3,8 +3,8 @@ import monkey.ast as ast
 from monkey.builtins import BUILTINS
 from monkey.environment import Environment, new_enclosed_environment
 from monkey.object import (
-    Object, ObjectType,
-    Integer, Boolean, String, Null, Array,
+    Object, ObjectType, Hashable,
+    Integer, Boolean, String, Null, Array, HashPair, Hash,
     ReturnValue, Error, Function, Builtin
 )
 
@@ -77,6 +77,8 @@ def evaluate(node: ast.Node, env: Environment) -> Object:
         if len(elements) == 1 and _is_error(elements[0]):
             return elements[0]
         return Array(elements)
+    elif type(node) is ast.HashLiteral:
+        return _eval_hash_literal(node, env)
     elif type(node) is ast.IndexExpression:
         left = evaluate(node.left, env)
         if _is_error(left):
@@ -290,6 +292,27 @@ def _eval_array_index_expression(array: Object, index: Object) -> Object:
         return NULL
 
     return array_object.elements[idx]
+
+
+def _eval_hash_literal(node: ast.HashLiteral, env: Environment) -> Object:
+    pairs = {}
+
+    for node_key, node_value in node.pairs.items():
+        key = evaluate(node_key, env)
+        if _is_error(key) or key is None:
+            return key
+
+        if not isinstance(key, Hashable):
+            return Error(f"unusable as hash key: {key.type}")
+
+        value = evaluate(node_value, env)
+        if _is_error(value) or value is None:
+            return value
+
+        hashed = key.hash_key()
+        pairs[hashed] = HashPair(key, value)
+
+    return Hash(pairs)
 
 
 def _is_truthy(obj: Object) -> bool:

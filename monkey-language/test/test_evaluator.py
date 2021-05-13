@@ -1,7 +1,12 @@
 from monkey.environment import Environment
-from monkey.evaluator import evaluate, NULL
+from monkey.evaluator import evaluate, NULL, TRUE, FALSE
 from monkey.lexer import Lexer
-from monkey.object import ObjectType, Object, Integer, Boolean, String, Error, Function, Array
+from monkey.object import (
+    ObjectType, Object,
+    Integer, Boolean, String,
+    Error, Function,
+    Array, Hash
+)
 from monkey.parser import Parser
 import unittest
 
@@ -411,6 +416,41 @@ class TestEvaluator(unittest.TestCase):
                 self._test_integer_object(evaluated, expected)
             else:
                 self._test_null_object(evaluated)
+
+    def test_hash_literals(self):
+        code = '''
+            let two = "two";
+            {
+                "one": 10 - 9,
+                two: 1 + 1,
+                "thr" + "ee": 6 / 2, 
+                4: 4,
+                true: 5,
+                false: 6
+            }
+        '''
+        evaluated = self._test_eval(code)
+
+        self.assertIsInstance(evaluated, Hash,
+                              f"object is not Hash. got={type(evaluated)}")
+
+        expected = {
+            String("one").hash_key(): 1,
+            String("two").hash_key(): 2,
+            String("three").hash_key(): 3,
+            Integer(4).hash_key(): 4,
+            TRUE.hash_key(): 5,
+            FALSE.hash_key(): 6,
+        }
+
+        self.assertEqual(len(evaluated.pairs), len(expected),
+                         f"hash has wrong num of pairs. got={len(evaluated.pairs)}, expected={len(expected)}")
+
+        for expected_key, expected_value in expected.items():
+            pair = evaluated.pairs[expected_key]
+            if not pair:
+                self.fail("no pair for given key in pairs")
+            self._test_integer_object(pair.value, expected_value)
 
     def _test_eval(self, code):
         lexer = Lexer(code)

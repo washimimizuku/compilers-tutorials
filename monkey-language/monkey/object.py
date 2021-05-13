@@ -31,6 +31,21 @@ class HashKey:
         self.type = type
         self.value = value
 
+    def __eq__(self, other: typing.Any) -> bool:
+        if isinstance(other, HashKey) and other.type == self.type and other.value == self.value:
+            return True
+
+        return False
+
+    def __ne__(self, other: typing.Any) -> bool:
+        if isinstance(other, HashKey) and other.type == self.type and other.value == self.value:
+            return False
+
+        return True
+
+    def __hash__(self) -> int:
+        return hash(f"{self.type}-{self.value}")
+
 
 class Hashable:
     def hash_key(self) -> HashKey:
