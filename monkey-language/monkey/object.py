@@ -1,4 +1,5 @@
 import enum
+import hashlib
 import typing
 
 from monkey.ast import Identifier, Expression, BlockStatement
@@ -14,6 +15,7 @@ class ObjectType(enum.Enum):
     FUNCTION = "FUNCTION"
     BUILTIN = "BUILTIN"
     ARRAY = "ARRAY"
+    HASH = "HASH"
 
 
 class Object:
@@ -24,7 +26,18 @@ class Object:
         raise NotImplementedError()
 
 
-class Integer:
+class HashKey:
+    def __init__(self, type: ObjectType, value: int):
+        self.type = type
+        self.value = value
+
+
+class Hashable:
+    def hash_key(self) -> HashKey:
+        raise NotImplementedError()
+
+
+class Integer(Object, Hashable):
     def __init__(self, value: int) -> None:
         self.value: int = value
 
@@ -34,8 +47,11 @@ class Integer:
     def inspect(self) -> str:
         return str(self.value)
 
+    def hash_key(self) -> HashKey:
+        return HashKey(self.object_type(), self.value)
 
-class Boolean:
+
+class Boolean(Object, Hashable):
     def __init__(self, value: bool) -> None:
         self.value: bool = value
 
@@ -45,8 +61,15 @@ class Boolean:
     def inspect(self) -> str:
         return str(self.value).lower()
 
+    def hash_key(self) -> HashKey:
+        value = 0  # False
+        if self.value:
+            value = 1  # True
 
-class String:
+        return HashKey(self.object_type(), value)
+
+
+class String(Object, Hashable):
     def __init__(self, value: str) -> None:
         self.value: str = value
 
@@ -56,8 +79,11 @@ class String:
     def inspect(self) -> str:
         return self.value
 
+    def hash_key(self) -> HashKey:
+        return HashKey(self.object_type(), hashlib.md5(self.value.encode()).hexdigest())
 
-class Null:
+
+class Null(Object):
     def __init__(self) -> None:
         self.value = None
 
@@ -68,7 +94,7 @@ class Null:
         return str(self.value)
 
 
-class ReturnValue:
+class ReturnValue(Object):
     def __init__(self, value: Object) -> None:
         self.value: Object = value
 
@@ -79,7 +105,7 @@ class ReturnValue:
         return self.value.inspect()
 
 
-class Error:
+class Error(Object):
     def __init__(self, message: str) -> None:
         self.message: str = message
 
@@ -90,7 +116,7 @@ class Error:
         return f"ERROR: {self.message}"
 
 
-class Function(Expression):
+class Function(Object):
     def __init__(self, parameters, body, env) -> None:
         self.parameters: typing.List[Identifier] = parameters
         self.body: BlockStatement = body
@@ -136,3 +162,24 @@ class Array(Object):
             elements.append(element.inspect())
 
         return f"[{', '.join(elements)}]"
+
+
+class HashPair:
+    def __init__(self, key: Object, value: Object) -> None:
+        self.key = key
+        self.value = value
+
+
+class Hash(Object):
+    def __init__(self, pairs: typing.Dict[HashKey, HashPair]) -> None:
+        self.pairs = pairs
+
+    def object_type(self) -> ObjectType:
+        return ObjectType.HASH
+
+    def inspect(self) -> str:
+        pairs = []
+        for pair in self.pairs:
+            pairs.append(f"{pair.key.inspect()}: {pair.value.inspect()}")
+
+        return f"[{', '.join(pairs)}]"
