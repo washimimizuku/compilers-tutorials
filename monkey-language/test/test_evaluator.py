@@ -313,6 +313,39 @@ class TestEvaluator(unittest.TestCase):
                 self.assertEqual(evaluated.message, expected.message,
                                  f"wrong error message. got={evaluated}, expected={expected}")
 
+    def test_builtin_function_rest(self):
+        builtin_functions_tests = (
+            ('rest([])', NULL),
+            ('rest([1, 2, 3])', [2, 3]),
+            ('rest([1, true, "hello"])', [True, 'hello']),
+            ('rest("foobar")', Error(
+                "argument to 'rest' must be ObjectType.ARRAY, got ObjectType.STRING")),
+        )
+
+        for (code, expected) in builtin_functions_tests:
+            evaluated = self._test_eval(code)
+
+            if type(expected) is list:
+                for index in range(len(evaluated)):
+
+                    if type(expected) is int:
+                        self._test_integer_object(
+                            evaluated[index], expected[index])
+                    elif type(expected) is bool:
+                        self._test_boolean_object(
+                            evaluated[index], expected[index])
+                    elif type(expected) is str:
+                        self.assertEqual(evaluated[index].value, expected[index],
+                                         f"wrong string value. got={evaluated[index]}, expected={expected[index]}")
+            elif expected.object_type() == ObjectType.NULL:
+                self.assertEqual(evaluated.object_type(), expected.object_type(),
+                                 f"wrong null value. got={evaluated.object_type()}, expected={expected.object_type()}")
+            else:
+                self.assertIsInstance(evaluated, Error,
+                                      f"object is not Error. got={type(evaluated)}")
+                self.assertEqual(evaluated.message, expected.message,
+                                 f"wrong error message. got={evaluated}, expected={expected}")
+
     def test_array_literals(self):
         code = "[1, 2 * 2, 3 + 3]"
         evaluated = self._test_eval(code)
