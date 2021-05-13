@@ -175,6 +175,10 @@ class TestEvaluator(unittest.TestCase):
                 '"Hello" - "World"',
                 "unknown operator: ObjectType.STRING - ObjectType.STRING",
             ),
+            (
+                '{"name": "Monkey"}[fn(x) { x }];',
+                "unusable as hash key: ObjectType.FUNCTION"
+            ),
         )
 
         for (code, expected) in error_handling_tests:
@@ -396,7 +400,7 @@ class TestEvaluator(unittest.TestCase):
         self._test_integer_object(evaluated.elements[2], 6)
 
     def test_array_index_expressions(self):
-        builtin_functions_tests = (
+        array_index_expressions_tests = (
             ("[1, 2, 3][0]", 1),
             ("[1, 2, 3][1]", 2),
             ("[1, 2, 3][2]", 3),
@@ -409,7 +413,7 @@ class TestEvaluator(unittest.TestCase):
             ("[1, 2, 3][-1]", None),
         )
 
-        for (code, expected) in builtin_functions_tests:
+        for (code, expected) in array_index_expressions_tests:
             evaluated = self._test_eval(code)
 
             if type(expected) is int:
@@ -451,6 +455,25 @@ class TestEvaluator(unittest.TestCase):
             if not pair:
                 self.fail("no pair for given key in pairs")
             self._test_integer_object(pair.value, expected_value)
+
+    def test_hash_index_expressions(self):
+        hash_index_expressions_tests = (
+            ('{"foo": 5}["foo"]', 5),
+            ('{"foo": 5}["bar"]', None),
+            ('let key = "foo"; {"foo": 5}[key]', 5),
+            ('{}["foo"]', None),
+            ('{5: 5}[5]', 5),
+            ('{true: 5}[true]', 5),
+            ('{false: 5}[false]', 5),
+        )
+
+        for (code, expected) in hash_index_expressions_tests:
+            evaluated = self._test_eval(code)
+
+            if type(expected) is int:
+                self._test_integer_object(evaluated, expected)
+            else:
+                self._test_null_object(evaluated)
 
     def _test_eval(self, code):
         lexer = Lexer(code)

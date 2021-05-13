@@ -279,6 +279,8 @@ def _eval_if_expression(if_expression: ast.IfExpression, env: Environment) -> Ob
 def _eval_index_expression(left: Object, index: Object) -> Object:
     if left.object_type() == ObjectType.ARRAY and index.object_type() == ObjectType.INTEGER:
         return _eval_array_index_expression(left, index)
+    elif left.object_type() == ObjectType.HASH:
+        return _eval_hash_index_expression(left, index)
     else:
         return Error(f"index operator not supported: {left.object_type()}")
 
@@ -292,6 +294,17 @@ def _eval_array_index_expression(array: Object, index: Object) -> Object:
         return NULL
 
     return array_object.elements[idx]
+
+
+def _eval_hash_index_expression(hash_object: Object, index: Object) -> Object:
+    if not isinstance(index, Hashable):
+        return Error(f"unusable as hash key: {index.object_type()}")
+
+    pair = hash_object.pairs.get(index.hash_key(), None)
+    if pair is None:
+        return NULL
+
+    return pair.value
 
 
 def _eval_hash_literal(node: ast.HashLiteral, env: Environment) -> Object:
