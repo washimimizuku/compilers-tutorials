@@ -28,7 +28,7 @@ class TestLexer(unittest.TestCase):
                              f"expected token type wrong. expected={expected_token_type}, got={token.token_type.name}")
             self.assertEqual(expected_literal,
                              token.literal,
-                             f"expected tokem literal wrong. expected={expected_literal}, got={token.literal}")
+                             f"expected token literal wrong. expected={expected_literal}, got={token.literal}")
 
     def test_variables_and_functions(self):
         code = '''
@@ -88,7 +88,7 @@ class TestLexer(unittest.TestCase):
                              f"expected token type wrong. expected={expected_token_type}, got={token.token_type.name}")
             self.assertEqual(expected_literal,
                              token.literal,
-                             f"expected tokem literal wrong. expected={expected_literal}, got={token.literal}")
+                             f"expected token literal wrong. expected={expected_literal}, got={token.literal}")
 
     def test_advanced_operators(self):
         code = "!-/*5;"
@@ -111,7 +111,7 @@ class TestLexer(unittest.TestCase):
                              f"expected token type wrong. expected={expected_token_type}, got={token.token_type.name}")
             self.assertEqual(expected_literal,
                              token.literal,
-                             f"expected tokem literal wrong. expected={expected_literal}, got={token.literal}")
+                             f"expected token literal wrong. expected={expected_literal}, got={token.literal}")
 
     def test_if_else(self):
         code = '''
@@ -151,7 +151,7 @@ class TestLexer(unittest.TestCase):
                              f"expected token type wrong. expected={expected_token_type}, got={token.token_type.name}")
             self.assertEqual(expected_literal,
                              token.literal,
-                             f"expected tokem literal wrong. expected={expected_literal}, got={token.literal}")
+                             f"expected token literal wrong. expected={expected_literal}, got={token.literal}")
 
     def test_comparison_operators(self):
         code = '''
@@ -186,7 +186,7 @@ class TestLexer(unittest.TestCase):
                              f"expected token type wrong. expected={expected_token_type}, got={token.token_type.name}")
             self.assertEqual(expected_literal,
                              token.literal,
-                             f"expected tokem literal wrong. expected={expected_literal}, got={token.literal}")
+                             f"expected token literal wrong. expected={expected_literal}, got={token.literal}")
 
     def test_strings(self):
         code = '''
@@ -210,7 +210,7 @@ class TestLexer(unittest.TestCase):
                              f"expected token type wrong. expected={expected_token_type}, got={token.token_type.name}")
             self.assertEqual(expected_literal,
                              token.literal,
-                             f"expected tokem literal wrong. expected={expected_literal}, got={token.literal}")
+                             f"expected token literal wrong. expected={expected_literal}, got={token.literal}")
 
     def test_arrays(self):
         code = '''
@@ -239,7 +239,7 @@ class TestLexer(unittest.TestCase):
                              f"expected token type wrong. expected={expected_token_type}, got={token.token_type.name}")
             self.assertEqual(expected_literal,
                              token.literal,
-                             f"expected tokem literal wrong. expected={expected_literal}, got={token.literal}")
+                             f"expected token literal wrong. expected={expected_literal}, got={token.literal}")
 
     def test_arrays(self):
         code = '''
@@ -278,4 +278,4 @@ class TestLexer(unittest.TestCase):
                              f"expected token type wrong. expected={expected_token_type}, got={token.token_type.name}")
             self.assertEqual(expected_literal,
                              token.literal,
-                             f"expected tokem literal wrong. expected={expected_literal}, got={token.literal}")
+                             f"expected token literal wrong. expected={expected_literal}, got={token.literal}")
