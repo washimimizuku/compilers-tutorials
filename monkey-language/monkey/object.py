@@ -95,7 +95,7 @@ class String(Object, Hashable):
         return self.value
 
     def hash_key(self) -> HashKey:
-        return HashKey(self.object_type(), hashlib.md5(self.value.encode()).hexdigest())
+        return HashKey(self.object_type(), hashlib.sha256(self.value.encode()).hexdigest())
 
 
 class Null(Object):
